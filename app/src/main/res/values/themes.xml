@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- OptiOS palette: calm dark surfaces, restrained glass accents. -->
+    <style name="Theme.OptiOS" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/bg_gradient_dark</item>
+        <item name="android:colorPrimary">@color/optios_accent</item>
+        <item name="android:colorAccent">@color/optios_accent</item>
+        <item name="android:windowEnableSplitTouch">false</item>
+        <item name="android:windowSoftInputMode">adjustNothing</item>
+    </style>
+</resources>

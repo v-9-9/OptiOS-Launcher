@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android TV banner for the HY320 (landscape 320x180 dp region). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#10141B" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+    <item android:gravity="center">
+        <shape android:shape="rectangle">
+            <size android:width="120dp" android:height="64dp" />
+            <solid android:color="#63B3F7" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+</layer-list>
