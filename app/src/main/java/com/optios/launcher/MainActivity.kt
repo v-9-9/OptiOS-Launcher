@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
@@ -152,8 +153,15 @@ class MainActivity : AppCompatActivity() {
         SleepController.sleepListener = { asleep ->
             overlayHandler.post { showSleep(asleep) }
         }
-        // Re-apply theme + wallpaper (survives returning from apps):
-        applyWallpaper(WallpaperStore.selected(this))
+        // Re-apply theme + wallpaper (survives returning from apps). First run
+        // auto-picks the first photo in the store so the desk photo shows immediately.
+        if (WallpaperStore.hasChoice(this)) {
+            applyWallpaper(WallpaperStore.selected(this))
+        } else {
+            val all = WallpaperStore.list()
+            Log.i(TAG, "wallpaper store: ${all.size} file(s)")
+            if (all.isNotEmpty()) applyWallpaper(all[0])
+        }
     }
 
     override fun onPause() {
@@ -350,6 +358,7 @@ class MainActivity : AppCompatActivity() {
     private val overlayHandler = Handler(Looper.getMainLooper())
 
     companion object {
+        private const val TAG = "OptiOS"
         private const val ENTRANCE_PLAYED = "entrance_played"
     }
 

@@ -21,6 +21,9 @@ object WallpaperStore {
             ?.sortedBy { it.name } ?: emptyList()
     }
 
+    fun hasChoice(ctx: Context): Boolean =
+        ctx.getSharedPreferences("optios", Context.MODE_PRIVATE).contains(KEY)
+
     fun selected(ctx: Context): File? {
         val path = ctx.getSharedPreferences("optios", Context.MODE_PRIVATE).getString(KEY, null) ?: return null
         val f = File(path)
@@ -28,7 +31,8 @@ object WallpaperStore {
     }
 
     fun setSelected(ctx: Context, path: String?) {
-        ctx.getSharedPreferences("optios", Context.MODE_PRIVATE).edit().putString(KEY, path).apply()
+        // Empty string = explicit "Default gradient" choice; never distinguishable from "never chosen".
+        ctx.getSharedPreferences("optios", Context.MODE_PRIVATE).edit().putString(KEY, path ?: "").apply()
     }
 
     /** Memory-safe decode to roughly the screen size. */
