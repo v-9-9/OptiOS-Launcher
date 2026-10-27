@@ -12,6 +12,7 @@
     <string name="panel_sleep">Sleep / Wake</string>
     <string name="panel_code_label">Pairing code: %1$s</string>
     <string name="panel_ip_label">Laptop page: http://%1$s:%2$d</string>
+    <string name="widget_usage">USAGE</string>
     <string name="app_not_found">App not installed</string>
     <string name="notification_listener_label">OptiOS media + notifications</string>
 </resources>

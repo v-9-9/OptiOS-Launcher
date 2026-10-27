@@ -13,6 +13,8 @@ import com.optios.launcher.databinding.ActivityMainBinding
 import com.optios.launcher.media.MediaCardState
 import com.optios.launcher.relay.LocalRelayServer
 import com.optios.launcher.relay.RelayState
+import com.optios.launcher.status.DeviceStats
+import com.optios.launcher.status.StatusDonutsView
 import com.optios.launcher.relay.SleepController
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -63,6 +65,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val mediaStateListener = { updateMediaCard() }
+
+    private val statusTicker = object : Runnable {
+        override fun run() {
+            val s = DeviceStats.snapshot()
+            binding.donutsView.update(
+                StatusDonutsView.Data(s.ramUsedPct, s.cpuLoadPct, s.cpuTempC, s.gpuTempC)
+            )
+            handler.postDelayed(this, 2_000L)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -124,6 +136,7 @@ class MainActivity : AppCompatActivity() {
         MediaCardState.updateListener = mediaStateListener
         updateMediaCard()
         handler.postDelayed(mediaTicker, 1_000L)
+        handler.postDelayed(statusTicker, 500L)
         hookRelayListeners()
         if (getPref(RELAY_ENABLED_KEY, false)) startRelay() else codePillState(false)
     }

@@ -163,17 +163,20 @@ class LocalRelayServer(
             .substringAfter(":").trim().split(" ")[0].toLong()
     } catch (_: Exception) { 0 }
 
-    /** Glass-dark control page served from the projector itself. */
+    /** Glass-dark control page (tokyo-night) served from the projector itself. */
     private fun controlPage(): String = """
 <!doctype html><html><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1">
 <title>OptiOS — Local Control</title><style>
-body{background:#0B0E13;color:#F2F4F8;font-family:system-ui,Segoe UI,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
-.card{background:linear-gradient(180deg,#33FFFFFF,#14FFFFFF);border:1px solid #26FFFFFF;border-radius:24px;padding:28px;width:min(420px,92vw)}
-h1{margin:0 0 4px;font-weight:300;letter-spacing:1px}small{opacity:.6}
-input,button{width:100%;padding:12px;margin-top:10px;border-radius:12px;border:1px solid #26FFFFFF;background:#0E1116;color:#F2F4F8;box-sizing:border-box}
-button{background:#63B3F7;color:#0B0E13;font-weight:700;cursor:pointer;border:none}
+body{background:#0F1017;color:#E8ECF4;font-family:system-ui,Segoe UI,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+.card{background:linear-gradient(180deg,#2E3A4256,#12223240);border:1px solid #4C7AA2F7;border-radius:26px;padding:28px;width:min(420px,92vw);box-shadow:0 0 40px #147AA2F7}
+h1{margin:0 0 4px;font-weight:300;letter-spacing:2px;color:#7AA2F7}small{opacity:.55}
+input,button{width:100%;padding:12px;margin-top:10px;border-radius:14px;border:1px solid #33FFFFFF;background:#16161E;color:#E8ECF4;box-sizing:border-box;outline:none}
+input:focus{border-color:#7AA2F7}
+button{background:#7AA2F7;color:#10121A;font-weight:700;cursor:pointer;border:none;transition:filter .15s}
+button:hover{filter:brightness(1.1)}
+.ghost{background:#2A2F3E;color:#E8ECF4;border:1px solid #33FFFFFF}
 .row{display:flex;gap:8px}.row>*{flex:1}
-#out{margin-top:14px;font-size:13px;opacity:.8;min-height:40px;white-space:pre-wrap}
+#out{margin-top:14px;font-size:13px;opacity:.85;min-height:40px;white-space:pre-wrap;color:#BB9AF7}
 </style></head><body><div class=card>
 <h1>OptiOS</h1><small>Local-only control — code rotates every 60s on the projector</small>
 <input id=code inputmode=numeric placeholder="6-digit code (on projector screen)">
@@ -181,9 +184,9 @@ button{background:#63B3F7;color:#0B0E13;font-weight:700;cursor:pointer;border:no
 <input id=body placeholder="Message body">
 <button onclick=send()>Send notification</button>
 <div class=row>
-<button onclick=sleepOn()>Sleep</button><button onclick=sleepOff()>Wake</button>
+<button class=ghost onclick=sleepOn()>Sleep</button><button class=ghost onclick=sleepOff()>Wake</button>
 </div>
-<button onclick=status()>Status (temps / RAM)</button>
+<button class=ghost onclick=status()>Status (temps / RAM)</button>
 <div id=out></div><script>
 async function post(path){const code=document.getElementById('code').value.trim();
 const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'code='+encodeURIComponent(code)+'&'+getPathArgs(path)});
