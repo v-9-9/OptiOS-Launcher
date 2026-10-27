@@ -78,15 +78,13 @@
     </LinearLayout>
 
     <!-- ============ MUSIC "CD CARD" (appears when a song plays) ============ -->
-    <androidx.cardview.widget.CardView
+    <FrameLayout
         android:id="@+id/mediaCard"
         android:layout_width="420dp"
         android:layout_height="132dp"
         android:layout_marginTop="18dp"
+        android:background="@drawable/bg_glass_card"
         android:visibility="gone"
-        app:cardBackgroundColor="#141924"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="0dp"
         app:layout_constraintStart_toStartOf="@id/clockBlock"
         app:layout_constraintTop_toBottomOf="@id/clockBlock">
 
@@ -145,7 +143,7 @@
                     android:progressTint="@color/optios_accent" />
             </LinearLayout>
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </FrameLayout>
 
     <!-- ============ HERO TILES (smaller, refined) ============ -->
     <LinearLayout
