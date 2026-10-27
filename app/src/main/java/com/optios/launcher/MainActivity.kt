@@ -103,12 +103,13 @@ class MainActivity : AppCompatActivity() {
     /** In-launcher Control Center: slide-up glass panel. */
     private fun toggleControlPanel() {
         if (binding.controlPanel.visibility == View.VISIBLE) {
-            binding.controlPanel.animate().alpha(0f).translationY(30f).setDuration(180L)
+            binding.controlPanel.animate().alpha(0f).translationY(40f).setDuration(220L)
+                .setInterpolator(DecelerateInterpolator())
                 .withEndAction { binding.controlPanel.visibility = View.GONE }.start()
         } else {
             binding.controlPanel.visibility = View.VISIBLE
-            binding.controlPanel.translationY = 30f
-            binding.controlPanel.animate().alpha(1f).translationY(0f).setDuration(200L)
+            binding.controlPanel.translationY = 40f
+            binding.controlPanel.animate().alpha(1f).translationY(0f).setDuration(260L)
                 .setInterpolator(DecelerateInterpolator()).start()
             binding.btnPanelSleep.requestFocus()
         }
@@ -144,7 +145,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun View.fadeView(targetAlpha: Float, visibility: Int) {
-        this.animate().alpha(targetAlpha).setDuration(250L).start()
+        this.animate().alpha(targetAlpha).setDuration(320L).start()
         this.visibility = visibility
     }
 
@@ -163,36 +164,37 @@ class MainActivity : AppCompatActivity() {
         MediaCardState.updateListener = null
     }
 
-    /** Focus glow + tiny scale pop — 180ms, DecelerateInterpolator (cheap on GPU). */
+    /** Focus glow + smooth scale — 200ms, DecelerateInterpolator (cheap on GPU). */
     private fun applyFocusAnimations() {
         val tiles = listOf(binding.tileYouTube, binding.tileCinemana)
         tiles.forEach { tile ->
             tile.setOnFocusChangeListener { v, hasFocus ->
-                val target = if (hasFocus) 1.06f else 1.0f
+                val target = if (hasFocus) 1.10f else 1.0f
                 v.animate().scaleX(target).scaleY(target)
-                    .setDuration(180L)
+                    .setDuration(200L)
                     .setInterpolator(DecelerateInterpolator())
                     .start()
             }
         }
         listOf(binding.dockApps, binding.dockControls, binding.dockSettings).forEach { dock ->
             dock.setOnFocusChangeListener { v, hasFocus ->
-                v.animate().scaleY(if (hasFocus) 1.08f else 1.0f)
-                    .setDuration(150L).start()
+                v.animate().scaleY(if (hasFocus) 1.10f else 1.0f)
+                    .setDuration(170L).start()
             }
         }
     }
 
     private fun playEntranceAnimation() {
+        val overshoot = android.view.animation.OvershootInterpolator(0.85f)
         val views = listOf<View>(binding.clockBlock, binding.tileYouTube, binding.tileCinemana, binding.dockRow)
         views.forEachIndexed { i, v ->
             v.alpha = 0f
-            v.scaleX = 0.96f
-            v.scaleY = 0.96f
+            v.scaleX = 0.92f
+            v.scaleY = 0.92f
             v.animate().alpha(1f).scaleX(1f).scaleY(1f)
-                .setStartDelay(i * 60L)
-                .setDuration(200L)
-                .setInterpolator(DecelerateInterpolator())
+                .setStartDelay(i * 80L)
+                .setDuration(300L)
+                .setInterpolator(overshoot)
                 .start()
         }
     }

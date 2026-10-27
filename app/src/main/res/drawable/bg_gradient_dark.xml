@@ -4,22 +4,22 @@
         <shape android:shape="rectangle">
             <gradient
                 android:angle="270"
-                android:startColor="#16161E"
-                android:centerColor="#1A1B26"
-                android:endColor="#0F1017"
+                android:startColor="#1B1512"
+                android:centerColor="#221A14"
+                android:endColor="#120D0A"
                 android:type="linear" />
         </shape>
     </item>
-    <!-- Faint neon-blue haze top-center (tokyo-night mood) -->
+    <!-- Warm lamp-glow haze top-center -->
     <item>
         <shape android:shape="oval">
             <gradient
-                android:startColor="#1A7AA2F7"
-                android:endColor="#007AA2F7"
+                android:startColor="#2EE8A15C"
+                android:endColor="#00E8A15C"
                 android:type="radial"
-                android:centerX="0.5"
-                android:centerY="0.15"
-                android:gradientRadius="70%p" />
+                android:centerX="0.72"
+                android:centerY="0.22"
+                android:gradientRadius="65%p" />
         </shape>
     </item>
 </layer-list>

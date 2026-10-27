@@ -2,9 +2,9 @@
 <resources>
     <!-- Large tile style: glass card + focus selector + press animation -->
     <style name="GlassTile">
-        <item name="android:layout_width">190dp</item>
-        <item name="android:layout_height">220dp</item>
-        <item name="android:layout_marginHorizontal">14dp</item>
+        <item name="android:layout_width">170dp</item>
+        <item name="android:layout_height">170dp</item>
+        <item name="android:layout_marginHorizontal">16dp</item>
         <item name="android:background">@drawable/bg_tile_selector</item>
         <item name="android:orientation">vertical</item>
         <item name="android:gravity">center</item>
@@ -15,9 +15,9 @@
     <style name="GlassTileLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:layout_marginTop">10dp</item>
         <item name="android:textColor">@color/optios_text_primary</item>
-        <item name="android:textSize">17sp</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 

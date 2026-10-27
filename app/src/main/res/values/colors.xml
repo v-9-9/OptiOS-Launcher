@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Tokyo-night palette: deep blue-black + neon accents -->
-    <color name="optios_accent">#7AA2F7</color>
-    <color name="optios_accent_warm">#FFB35C</color>
-    <color name="optios_accent_night">#BB9AF7</color>
-    <color name="optios_surface">#1A1B26</color>
-    <color name="optios_text_primary">#E8ECF4</color>
+    <!-- Warm desk-photo palette: dark wood + amber lamp light -->
+    <color name="optios_accent">#E8A15C</color>
+    <color name="optios_accent_warm">#FFC98A</color>
+    <color name="optios_accent_night">#B98A5F</color>
+    <color name="optios_surface">#191411</color>
+    <color name="optios_text_primary">#F5EFE6</color>
 </resources>

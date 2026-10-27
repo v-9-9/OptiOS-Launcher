@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Liquid Glass card: dark tokyo-night glass, cool top light, soft neon border -->
+<!-- Liquid Glass card: warm desk-photo glass, cream top light, amber border -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
     <gradient
         android:angle="270"
-        android:startColor="#2E3A4256"
-        android:centerColor="#1A2A3344"
-        android:endColor="#12223240"
+        android:startColor="#30F5EFE6"
+        android:centerColor="#1AF5EFE6"
+        android:endColor="#0AF5EFE6"
         android:type="linear" />
     <corners android:radius="26dp" />
-    <stroke android:width="1dp" android:color="#4C7AA2F7" />
+    <stroke android:width="1dp" android:color="#42E8A15C" />
     <padding android:left="1dp" android:top="1dp" android:right="1dp" android:bottom="1dp" />
 </shape>

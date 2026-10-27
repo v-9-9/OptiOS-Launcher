@@ -9,54 +9,41 @@
     android:background="@drawable/bg_gradient_dark"
     tools:context=".MainActivity">
 
-    <!-- ============ TOP: CLOCK LEFT / WEATHER RIGHT ============ -->
-    <FrameLayout
+    <!-- ============ TOP CENTER: CLOCK + DATE ============ -->
+    <LinearLayout
         android:id="@+id/clockBlock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="24dp">
 
-        <!-- Day/night dial: subtle backdrop ring behind the digits -->
-        <com.optios.launcher.clock.DayNightClockView
-            android:id="@+id/dayNightDial"
-            android:layout_width="176dp"
-            android:layout_height="176dp"
-            android:alpha="0.55" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/clockText"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:fontFamily="serif"
+            android:shadowColor="#80E8A15C"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="16"
+            android:textColor="@color/optios_text_primary"
+            android:textSize="58sp"
+            tools:text="22:09" />
 
-            <TextView
-                android:id="@+id/clockText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-thin"
-                android:shadowColor="#80FFFFFF"
-                android:shadowDx="0"
-                android:shadowDy="0"
-                android:shadowRadius="14"
-                android:textColor="@color/optios_text_primary"
-                android:textSize="42sp"
-                tools:text="22:09" />
-
-            <TextView
-                android:id="@+id/dateText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:alpha="0.75"
-                android:fontFamily="sans-serif-light"
-                android:textColor="@color/optios_text_primary"
-                android:textSize="13sp"
-                tools:text="Tuesday, Oct 27" />
-        </LinearLayout>
-    </FrameLayout>
+        <TextView
+            android:id="@+id/dateText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.72"
+            android:fontFamily="serif"
+            android:textColor="@color/optios_text_primary"
+            android:textSize="15sp"
+            tools:text="Tuesday, Oct 27" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/weatherBlock"
@@ -101,7 +88,8 @@
         android:orientation="vertical"
         android:paddingHorizontal="10dp"
         android:paddingVertical="10dp"
-        app:layout_constraintStart_toStartOf="@id/clockBlock"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="30dp"
         app:layout_constraintTop_toBottomOf="@id/clockBlock">
 
         <TextView
@@ -128,7 +116,7 @@
         android:layout_marginTop="12dp"
         android:background="@drawable/bg_glass_card"
         android:visibility="gone"
-        app:layout_constraintStart_toStartOf="@id/clockBlock"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/statusWidget">
 
         <LinearLayout
@@ -203,8 +191,8 @@
             style="@style/GlassTile">
 
             <ImageView
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
                 android:contentDescription="@string/tile_youtube"
                 android:src="@drawable/ic_tile_youtube" />
 
@@ -218,8 +206,8 @@
             style="@style/GlassTile">
 
             <ImageView
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
                 android:contentDescription="@string/tile_cinemana"
                 android:src="@drawable/ic_tile_cinemana" />
 
