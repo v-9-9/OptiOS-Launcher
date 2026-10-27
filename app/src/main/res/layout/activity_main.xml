@@ -67,39 +67,52 @@
     </LinearLayout>
 
     <!-- ============ TOP: CLOCK LEFT / WEATHER RIGHT ============ -->
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/clockBlock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginTop="20dp"
-        android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/clockText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-thin"
-            android:shadowColor="#B3000000"
-            android:shadowDx="0"
-            android:shadowDy="3"
-            android:shadowRadius="10"
-            android:textColor="@color/optios_text_primary"
-            android:textSize="60sp"
-            tools:text="14:52" />
+        <!-- Day/night dial: sun arc (06-18), moon arc (18-06), live marker -->
+        <com.optios.launcher.clock.DayNightClockView
+            android:id="@+id/dayNightDial"
+            android:layout_width="176dp"
+            android:layout_height="176dp" />
 
-        <TextView
-            android:id="@+id/dateText"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:alpha="0.75"
-            android:fontFamily="sans-serif-light"
-            android:textColor="@color/optios_text_primary"
-            android:textSize="14sp"
-            tools:text="Monday, Oct 27" />
-    </LinearLayout>
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/clockText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-thin"
+                android:shadowColor="#B3000000"
+                android:shadowDx="0"
+                android:shadowDy="3"
+                android:shadowRadius="10"
+                android:textColor="@color/optios_text_primary"
+                android:textSize="40sp"
+                tools:text="14:52" />
+
+            <TextView
+                android:id="@+id/dateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.75"
+                android:fontFamily="sans-serif-light"
+                android:textColor="@color/optios_text_primary"
+                android:textSize="13sp"
+                tools:text="Mon, Oct 27" />
+        </LinearLayout>
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/weatherBlock"

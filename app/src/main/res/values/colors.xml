@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="optios_accent">#63B3F7</color>
-    <color name="optios_surface">#0E1116</color>
-    <color name="optios_text_primary">#F2F4F8</color>
+    <color name="optios_accent">#4FD9FF</color>
+    <color name="optios_accent_warm">#FFB35C</color>
+    <color name="optios_accent_night">#7B6BFF</color>
+    <color name="optios_surface">#0A0D14</color>
+    <color name="optios_text_primary">#F4F7FB</color>
 </resources>
