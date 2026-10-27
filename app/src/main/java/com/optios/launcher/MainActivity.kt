@@ -11,16 +11,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.optios.launcher.databinding.ActivityMainBinding
 import com.optios.launcher.media.MediaCardState
-import com.optios.launcher.relay.LocalRelayServer
-import com.optios.launcher.relay.RelayState
 import com.optios.launcher.status.DeviceStats
 import com.optios.launcher.status.StatusDonutsView
 import com.optios.launcher.relay.SleepController
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.Timer
-import java.util.TimerTask
 
 /**
  * OptiOS home (Milestone 3):
@@ -49,10 +45,6 @@ class MainActivity : AppCompatActivity() {
             if (binding.clockText.text != hm) {
                 binding.clockText.text = hm
                 binding.dateText.text = dateFormat.format(now)
-            }
-            // Keep the Control Center code in sync with the 60s rotation:
-            if (binding.controlPanel.visibility == View.VISIBLE) {
-                binding.panelCode.text = getString(R.string.panel_code_label, RelayState.code)
             }
             handler.postDelayed(this, 1_000L)
         }
@@ -90,14 +82,13 @@ class MainActivity : AppCompatActivity() {
         binding.tileYouTube.nextFocusRightId = R.id.tileCinemana
         binding.tileCinemana.nextFocusLeftId = R.id.tileYouTube
         binding.dockApps.setOnClickListener { toastInProgress("Apps") }
-        // Controls = toggle the local relay (laptop -> projector, opt-in)
+        // Controls = natural in-launcher Control Center (no linking, no website)
         binding.dockControls.setOnClickListener { toggleControlPanel() }
         binding.dockSettings.setOnClickListener { openSystemSettings() }
         binding.tileYouTube.requestFocus()
         // Restore sleep state if it was left on:
         if (SleepController.isAsleep) showSleep(true)
-        // Wire the Control Center panel buttons:
-        binding.btnPanelRelay.setOnClickListener { toggleRelay(); refreshPanelInfo() }
+        // Control Center panel:
         binding.btnPanelSleep.setOnClickListener {
             SleepController.setSleep(!SleepController.isAsleep)
         }
@@ -111,7 +102,6 @@ class MainActivity : AppCompatActivity() {
 
     /** In-launcher Control Center: slide-up glass panel. */
     private fun toggleControlPanel() {
-        refreshPanelInfo()
         if (binding.controlPanel.visibility == View.VISIBLE) {
             binding.controlPanel.animate().alpha(0f).translationY(30f).setDuration(180L)
                 .withEndAction { binding.controlPanel.visibility = View.GONE }.start()
@@ -120,17 +110,8 @@ class MainActivity : AppCompatActivity() {
             binding.controlPanel.translationY = 30f
             binding.controlPanel.animate().alpha(1f).translationY(0f).setDuration(200L)
                 .setInterpolator(DecelerateInterpolator()).start()
-            binding.btnPanelRelay.requestFocus()
+            binding.btnPanelSleep.requestFocus()
         }
-    }
-
-    private fun refreshPanelInfo() {
-        binding.panelCode.text = getString(R.string.panel_code_label, RelayState.code)
-        binding.panelIp.text = getString(
-            R.string.panel_ip_label,
-            ReadLocalIp.ipv4 ?: "no-wifi",
-            RelayState.port
-        )
     }
 
     override fun onResume() {
@@ -141,78 +122,14 @@ class MainActivity : AppCompatActivity() {
         updateMediaCard()
         handler.postDelayed(mediaTicker, 1_000L)
         handler.postDelayed(statusTicker, 500L)
-        hookRelayListeners()
-        // First run: relay defaults ON (still gated by the rotating code) so
-        // the laptop page works before any settings excursion.
-        if (!relayPrefs.contains(RELAY_ENABLED_KEY)) setPref(RELAY_ENABLED_KEY, true)
-        if (getPref(RELAY_ENABLED_KEY, false)) startRelay() else codePillState(false)
+        hookOverlayListeners()
     }
-
-    // ================= Relay (laptop -> projector) =================
-
-    private val relayPrefs by lazy { getSharedPreferences("optios", MODE_PRIVATE) }
-    private var relayServer: LocalRelayServer? = null
-    private var codeTimer: Timer? = null
 
     private val overlayHandler = Handler(Looper.getMainLooper())
 
-    private fun hookRelayListeners() {
-        RelayState.overlayListener = { event ->
-            overlayHandler.post {
-                binding.relayTitle.text = event.title
-                binding.relayBody.text = event.body.ifBlank { " " }
-                binding.relayCard.alpha = 1f
-                binding.relayCard.visibility = View.VISIBLE
-                overlayHandler.postDelayed({
-                    binding.relayCard.animate().alpha(0f).setDuration(300L)
-                        .withEndAction { binding.relayCard.visibility = View.GONE }.start()
-                }, 6_000L)
-            }
-        }
+    private fun hookOverlayListeners() {
         SleepController.sleepListener = { asleep ->
             overlayHandler.post { showSleep(asleep) }
-        }
-    }
-
-    private fun toggleRelay() {
-        val now = !getPref(RELAY_ENABLED_KEY, false)
-        setPref(RELAY_ENABLED_KEY, now)
-        if (now) startRelay() else stopRelay()
-        Toast.makeText(this, "Relay " + if (now) "ON — see code on screen" else "OFF", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun startRelay() {
-        if (relayServer != null) return
-        RelayState.enabled = true
-        RelayState.port = 8692
-        relayServer = LocalRelayServer(RelayState.port) { }.apply { start() }
-        val onScreen = ReadLocalIp.ipv4?.let { "$it:${RelayState.port}" } ?: "booting…"
-        // rotate code immediately + every 60 seconds
-        RelayState.rotateCode()
-        codeTimer = Timer("optios-code").apply {
-            schedule(object : TimerTask() {
-                override fun run() = RelayState.rotateCode()
-            }, 60_000L, 60_000L)
-        }
-        codePillState(true)
-        binding.codePill.text = RelayState.code
-        Toast.makeText(this, "Relay on: $onScreen", Toast.LENGTH_LONG).show()
-    }
-
-    private fun stopRelay() {
-        RelayState.enabled = false
-        relayServer?.shutdown()
-        relayServer = null
-        codeTimer?.cancel()
-        codeTimer = null
-        codePillState(false)
-    }
-
-    private fun codePillState(visible: Boolean) {
-        binding.codePill.visibility = if (visible) View.VISIBLE else View.GONE
-        if (visible) {
-            RelayState.rotateCode()
-            binding.codePill.text = RelayState.code
         }
     }
 
@@ -231,22 +148,18 @@ class MainActivity : AppCompatActivity() {
         this.visibility = visibility
     }
 
-    private fun getPref(key: String, def: Boolean): Boolean = relayPrefs.getBoolean(key, def)
-    private fun setPref(key: String, value: Boolean) = relayPrefs.edit().putBoolean(key, value).apply()
-
     companion object {
-        const val RELAY_ENABLED_KEY = "relay_enabled"
         private const val ENTRANCE_PLAYED = "entrance_played"
     }
 
     /** Entrance animation only on the very first launch of the session. */
     private val entrancePlayed by lazy { getSharedPreferences("optios", MODE_PRIVATE).getBoolean(ENTRANCE_PLAYED, false) }
-    private var entranceMarked = false
 
     override fun onPause() {
         super.onPause()
         handler.removeCallbacks(clockTicker)
         handler.removeCallbacks(mediaTicker)
+        handler.removeCallbacks(statusTicker)
         MediaCardState.updateListener = null
     }
 
