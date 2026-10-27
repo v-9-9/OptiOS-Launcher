@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val mediaStateListener = Runnable { updateMediaCard() }
+    private val mediaStateListener = { updateMediaCard() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
