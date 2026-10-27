@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Readability scrim over the wallpaper: darker top & bottom, clear center -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:top="0dp" android:bottom="55%">
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:startColor="#8C000000"
+                android:endColor="#00000000"
+                android:type="linear" />
+        </shape>
+    </item>
+    <item android:top="45%">
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="90"
+                android:startColor="#B3000000"
+                android:endColor="#00000000"
+                android:type="linear" />
+        </shape>
+    </item>
+</layer-list>

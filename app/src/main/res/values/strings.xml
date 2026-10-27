@@ -11,6 +11,18 @@
     <string name="panel_sleep">Sleep / Wake</string>
     <string name="panel_title">Control Center</string>
     <string name="widget_usage">USAGE</string>
+    <string name="cc_wallpaper">WALLPAPER</string>
+    <string name="cc_prev">◀ Prev</string>
+    <string name="cc_next">Next ▶</string>
+    <string name="cc_default">Default</string>
+    <string name="cc_theme">THEME</string>
+    <string name="cc_theme_auto">Auto</string>
+    <string name="cc_theme_warm">Warm</string>
+    <string name="cc_theme_tokyo">Tokyo</string>
+    <string name="cc_theme_dark">Dark</string>
+    <string name="cc_macro">SHORTCUTS (record: press Record, press a key, choose action)</string>
+    <string name="cc_record">● Record</string>
+    <string name="cc_clear">Clear all</string>
     <string name="app_not_found">App not installed</string>
     <string name="notification_listener_label">OptiOS media + notifications</string>
 </resources>

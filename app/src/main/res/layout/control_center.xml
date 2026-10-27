@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Control Center overlay: slides up, full featured (wallpaper, theme, macro recorder, sleep) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/controlCenter"
+    android:layout_width="820dp"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="100dp"
+    android:alpha="0"
+    android:background="@drawable/bg_glass_card"
+    android:orientation="vertical"
+    android:padding="22dp"
+    android:visibility="gone"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="serif"
+        android:text="@string/panel_title"
+        android:textColor="@color/optios_text_primary"
+        android:textSize="20sp" />
+
+    <!-- Wallpaper picker -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:alpha="0.6"
+        android:letterSpacing="0.1"
+        android:text="@string/cc_wallpaper"
+        android:textColor="@color/optios_text_primary"
+        android:textSize="11sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnWallPrev"
+            style="@style/PanelButton"
+            android:text="@string/cc_prev" />
+
+        <TextView
+            android:id="@+id/btnWallNext"
+            style="@style/PanelButton"
+            android:text="@string/cc_next" />
+
+        <TextView
+            android:id="@+id/btnWallDefault"
+            style="@style/PanelButton"
+            android:text="@string/cc_default" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/wallName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:alpha="0.6"
+        android:textSize="11sp"
+        android:textColor="@color/optios_text_primary" />
+
+    <!-- Theme presets -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:alpha="0.6"
+        android:letterSpacing="0.1"
+        android:text="@string/cc_theme"
+        android:textColor="@color/optios_text_primary"
+        android:textSize="11sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnThemeAuto"
+            style="@style/PanelButton"
+            android:text="@string/cc_theme_auto" />
+
+        <TextView
+            android:id="@+id/btnThemeWarm"
+            style="@style/PanelButton"
+            android:text="@string/cc_theme_warm" />
+
+        <TextView
+            android:id="@+id/btnThemeTokyo"
+            style="@style/PanelButton"
+            android:text="@string/cc_theme_tokyo" />
+
+        <TextView
+            android:id="@+id/btnThemeDark"
+            style="@style/PanelButton"
+            android:text="@string/cc_theme_dark" />
+    </LinearLayout>
+
+    <!-- Macro recorder -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:alpha="0.6"
+        android:letterSpacing="0.1"
+        android:text="@string/cc_macro"
+        android:textColor="@color/optios_text_primary"
+        android:textSize="11sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnRecord"
+            style="@style/PanelButton"
+            android:text="@string/cc_record" />
+
+        <TextView
+            android:id="@+id/btnClearMacros"
+            style="@style/PanelButton"
+            android:text="@string/cc_clear" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/macroStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:alpha="0.65"
+        android:textSize="11sp"
+        android:textColor="@color/optios_accent" />
+
+    <!-- Sleep -->
+    <TextView
+        android:id="@+id/btnPanelSleep"
+        style="@style/PanelButton"
+        android:layout_marginTop="12dp"
+        android:text="@string/panel_sleep" />
+</LinearLayout>

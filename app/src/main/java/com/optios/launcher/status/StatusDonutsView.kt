@@ -52,6 +52,17 @@ class StatusDonutsView @JvmOverloads constructor(
         invalidate()
     }
 
+    /** Theme accent drives both rings: CPU = accent, RAM = accent softened toward white. */
+    fun setAccent(accent: Int) {
+        cpuRing.color = accent
+        fun soften(c: Int): Int = c * 7 / 10 + 255 * 3 / 10
+        val r = soften(accent shr 16 and 0xFF)
+        val g = soften(accent shr 8 and 0xFF)
+        val b = soften(accent and 0xFF)
+        ramRing.color = (accent and 0xFF000000.toInt()) or (r shl 16) or (g shl 8) or b
+        invalidate()
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         val w = width.toFloat()

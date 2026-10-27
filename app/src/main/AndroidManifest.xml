@@ -6,6 +6,12 @@
          - QUERY_ALL_PACKAGES not needed: launcher resolves launch intents via getLaunchIntentForPackage. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Wallpaper: read the user's own photos from /sdcard/Pictures/OptiOS (media read only). -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
     <application
         android:allowBackup="true"
         android:banner="@drawable/ic_launcher_banner"
