@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="optios_accent">#4FD9FF</color>
+    <!-- Tokyo-night palette: deep blue-black + neon accents -->
+    <color name="optios_accent">#7AA2F7</color>
     <color name="optios_accent_warm">#FFB35C</color>
-    <color name="optios_accent_night">#7B6BFF</color>
-    <color name="optios_surface">#0A0D14</color>
-    <color name="optios_text_primary">#F4F7FB</color>
+    <color name="optios_accent_night">#BB9AF7</color>
+    <color name="optios_surface">#1A1B26</color>
+    <color name="optios_text_primary">#E8ECF4</color>
 </resources>

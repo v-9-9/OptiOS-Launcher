@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val handler = Handler(Looper.getMainLooper())
     private val clockFormat = SimpleDateFormat("HH:mm", Locale.US)
+    private val secondsFormat = SimpleDateFormat("ss", Locale.US)
     private val dateFormat = SimpleDateFormat("EEEE, MMM d", Locale.US)
 
     private val packageYouTube = "com.google.android.youtube.tv"
@@ -44,8 +45,13 @@ class MainActivity : AppCompatActivity() {
         override fun run() {
             val now = Date()
             binding.clockText.text = clockFormat.format(now)
+            binding.clockSeconds.text = secondsFormat.format(now)
             binding.dateText.text = dateFormat.format(now)
-            handler.postDelayed(this, 10_000L)
+            // Keep the Control Center code in sync with the 60s rotation:
+            if (binding.controlPanel.visibility == View.VISIBLE) {
+                binding.panelCode.text = getString(R.string.panel_code_label, RelayState.code)
+            }
+            handler.postDelayed(this, 1_000L)
         }
     }
 

@@ -76,11 +76,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Day/night dial: sun arc (06-18), moon arc (18-06), live marker -->
+        <!-- Day/night dial: subtle backdrop ring behind the digits -->
         <com.optios.launcher.clock.DayNightClockView
             android:id="@+id/dayNightDial"
             android:layout_width="176dp"
-            android:layout_height="176dp" />
+            android:layout_height="176dp"
+            android:alpha="0.55" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -89,18 +90,40 @@
             android:gravity="center_horizontal"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/clockText"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-thin"
-                android:shadowColor="#B3000000"
-                android:shadowDx="0"
-                android:shadowDy="3"
-                android:shadowRadius="10"
-                android:textColor="@color/optios_text_primary"
-                android:textSize="40sp"
-                tools:text="14:52" />
+                android:gravity="bottom"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/clockText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-thin"
+                    android:shadowColor="#80FFFFFF"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="14"
+                    android:textColor="@color/optios_text_primary"
+                    android:textSize="46sp"
+                    tools:text="22:09" />
+
+                <TextView
+                    android:id="@+id/clockSeconds"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:fontFamily="sans-serif-light"
+                    android:shadowColor="@color/optios_accent"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="10"
+                    android:textColor="@color/optios_accent"
+                    android:textSize="20sp"
+                    tools:text="41" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/dateText"
@@ -110,7 +133,7 @@
                 android:fontFamily="sans-serif-light"
                 android:textColor="@color/optios_text_primary"
                 android:textSize="13sp"
-                tools:text="Mon, Oct 27" />
+                tools:text="Tuesday, Oct 27" />
         </LinearLayout>
     </FrameLayout>
 
