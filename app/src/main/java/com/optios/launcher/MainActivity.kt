@@ -102,7 +102,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         applyFocusAnimations()
-        playEntranceAnimation()
+        if (!entrancePlayed) {
+            playEntranceAnimation()
+            getSharedPreferences("optios", MODE_PRIVATE).edit().putBoolean(ENTRANCE_PLAYED, true).apply()
+        }
     }
 
     /** In-launcher Control Center: slide-up glass panel. */
@@ -138,6 +141,9 @@ class MainActivity : AppCompatActivity() {
         handler.postDelayed(mediaTicker, 1_000L)
         handler.postDelayed(statusTicker, 500L)
         hookRelayListeners()
+        // First run: relay defaults ON (still gated by the rotating code) so
+        // the laptop page works before any settings excursion.
+        if (!relayPrefs.contains(RELAY_ENABLED_KEY)) setPref(RELAY_ENABLED_KEY, true)
         if (getPref(RELAY_ENABLED_KEY, false)) startRelay() else codePillState(false)
     }
 
@@ -229,7 +235,12 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val RELAY_ENABLED_KEY = "relay_enabled"
+        private const val ENTRANCE_PLAYED = "entrance_played"
     }
+
+    /** Entrance animation only on the very first launch of the session. */
+    private val entrancePlayed by lazy { getSharedPreferences("optios", MODE_PRIVATE).getBoolean(ENTRANCE_PLAYED, false) }
+    private var entranceMarked = false
 
     override fun onPause() {
         super.onPause()

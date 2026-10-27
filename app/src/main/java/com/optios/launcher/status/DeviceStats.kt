@@ -18,12 +18,18 @@ object DeviceStats {
     private var lastCpuIdle = 0L
     private var lastCpuTotal = 0L
 
+    /** Rolling window to keep the displayed CPU load stable, not jumpy. */
+    private val loadHistory = FloatArray(4) { 0f }
+    private var loadIdx = 0
+
     fun snapshot(): Snapshot {
         val memTotal = readLongField("/proc/meminfo", "MemTotal")
         val memAvail = readLongField("/proc/meminfo", "MemAvailable")
         val ramPct = if (memTotal > 0) ((memTotal - memAvail) * 100 / memTotal).toInt() else 0
 
-        val cpuLoad = readCpuLoadPct()
+        loadHistory[loadIdx] = readCpuLoadPct().toFloat()
+        loadIdx = (loadIdx + 1) % loadHistory.size
+        val cpuLoad = loadHistory.average().toInt()
 
         val cpuTemp = readThermal(0)
         val gpuTemp = readThermal(1)
