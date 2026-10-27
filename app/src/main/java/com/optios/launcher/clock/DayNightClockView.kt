@@ -31,12 +31,12 @@ class DayNightClockView @JvmOverloads constructor(
     }
     private val dayPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        color = 0xB3FFB35C        // warm amber
+        color = 0xB3FFB35C.toInt()  // warm amber
         strokeCap = Paint.Cap.ROUND
     }
     private val nightPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        color = 0xA67B6BFF        // soft violet
+        color = 0xA67B6BFF.toInt()  // soft violet
         strokeCap = Paint.Cap.ROUND
     }
     private val markerGlow = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -58,27 +58,22 @@ class DayNightClockView @JvmOverloads constructor(
     }
     private val moonCut = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = 0xFF000000
+        color = 0xFF000000.toInt()
         xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.DST_OUT)
     }
 
     private val arcRect = RectF()
 
-    /** Auto-refresh twice a minute. */
-    private val refresh = Runnable { invalidate(); postDelayed(refresh, 30_000L) }
-
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        postDelayed(refresh, 30_000L)
-    }
-
-    override fun onDetachedFromWindow() {
-        removeCallbacks(refresh)
-        super.onDetachedFromWindow()
+        // Kick off the recurring self-refresh (each draw schedules the next).
+        postInvalidateDelayed(30_000L)
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        // Recurring self-refresh: schedule the next paint 30 s ahead.
+        postInvalidateDelayed(30_000L)
         val c = Calendar.getInstance()
         val hours = c.get(Calendar.HOUR_OF_DAY)
         val minutes = c.get(Calendar.MINUTE)
