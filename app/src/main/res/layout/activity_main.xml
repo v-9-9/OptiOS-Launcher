@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,6 +8,64 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient_dark"
     tools:context=".MainActivity">
+
+
+    <!-- Rotating pairing code (until the weather glass box, top-right) -->
+    <TextView
+        android:id="@+id/codePill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/bg_glass_card"
+        android:fontFamily="monospace"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="6dp"
+        android:textColor="@color/optios_accent"
+        android:textSize="13sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/weatherBlock"
+        tools:text="418293"
+        tools:visibility="visible" />
+
+    <!-- LAN relay incoming notification card (glass, top-center) -->
+    <LinearLayout
+        android:id="@+id/relayCard"
+        android:layout_width="420dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_glass_card"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="gone">
+
+        <TextView
+            android:id="@+id/relayTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/optios_text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="YouTube" />
+
+        <TextView
+            android:id="@+id/relayBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0.85"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="@color/optios_text_primary"
+            android:textSize="14sp"
+            tools:text="New video: How X works" />
+    </LinearLayout>
 
     <!-- ============ TOP: CLOCK LEFT / WEATHER RIGHT ============ -->
     <LinearLayout
@@ -65,7 +123,7 @@
             android:textColor="@color/optios_text_primary"
             android:textSize="24sp"
             android:textStyle="bold"
-            tools:text="32°C" />
+            tools:text="32Â°C" />
 
         <TextView
             android:id="@+id/weatherDesc"
@@ -217,5 +275,15 @@
             style="@style/DockItem"
             android:text="@string/dock_settings" />
     </LinearLayout>
+
+    <!-- Sleep / privacy-black overlay (full, opaque, above everything) -->
+    <View
+        android:id="@+id/sleepOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:alpha="0.97"
+        android:visibility="gone"
+        tools:visibility="gone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

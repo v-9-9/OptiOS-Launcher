@@ -11,9 +11,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.optios.launcher.databinding.ActivityMainBinding
 import com.optios.launcher.media.MediaCardState
+import com.optios.launcher.relay.LocalRelayServer
+import com.optios.launcher.relay.RelayState
+import com.optios.launcher.relay.SleepController
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.Timer
+import java.util.TimerTask
 
 /**
  * OptiOS home (Milestone 3):
@@ -66,9 +71,12 @@ class MainActivity : AppCompatActivity() {
         binding.tileYouTube.nextFocusRightId = R.id.tileCinemana
         binding.tileCinemana.nextFocusLeftId = R.id.tileYouTube
         binding.dockApps.setOnClickListener { toastInProgress("Apps") }
-        binding.dockControls.setOnClickListener { toastInProgress("Controls") }
+        // Controls = toggle the local relay (laptop -> projector, opt-in)
+        binding.dockControls.setOnClickListener { toggleRelay() }
         binding.dockSettings.setOnClickListener { openSystemSettings() }
         binding.tileYouTube.requestFocus()
+        // Restore sleep state if it was left on:
+        if (SleepController.isAsleep) showSleep(true)
 
         applyFocusAnimations()
         playEntranceAnimation()
@@ -81,6 +89,98 @@ class MainActivity : AppCompatActivity() {
         MediaCardState.updateListener = mediaStateListener
         updateMediaCard()
         handler.postDelayed(mediaTicker, 1_000L)
+        hookRelayListeners()
+        if (getPref(RELAY_ENABLED_KEY, false)) startRelay() else codePillState(false)
+    }
+
+    // ================= Relay (laptop -> projector) =================
+
+    private val relayPrefs by lazy { getSharedPreferences("optios", MODE_PRIVATE) }
+    private var relayServer: LocalRelayServer? = null
+    private var codeTimer: Timer? = null
+
+    private val overlayHandler = Handler(Looper.getMainLooper())
+
+    private fun hookRelayListeners() {
+        RelayState.overlayListener = { event ->
+            overlayHandler.post {
+                binding.relayTitle.text = event.title
+                binding.relayBody.text = event.body.ifBlank { " " }
+                binding.relayCard.alpha = 1f
+                binding.relayCard.visibility = View.VISIBLE
+                overlayHandler.postDelayed({
+                    binding.relayCard.animate().alpha(0f).setDuration(300L)
+                        .withEndAction { binding.relayCard.visibility = View.GONE }.start()
+                }, 6_000L)
+            }
+        }
+        SleepController.sleepListener = { asleep ->
+            overlayHandler.post { showSleep(asleep) }
+        }
+    }
+
+    private fun toggleRelay() {
+        val now = !getPref(RELAY_ENABLED_KEY, false)
+        setPref(RELAY_ENABLED_KEY, now)
+        if (now) startRelay() else stopRelay()
+        Toast.makeText(this, "Relay " + if (now) "ON — see code on screen" else "OFF", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun startRelay() {
+        if (relayServer != null) return
+        RelayState.enabled = true
+        RelayState.port = 8692
+        relayServer = LocalRelayServer(RelayState.port) { }.apply { start() }
+        val onScreen = ReadLocalIp.ipv4?.let { "$it:${RelayState.port}" } ?: "booting…"
+        // rotate code immediately + every 60 seconds
+        RelayState.rotateCode()
+        codeTimer = Timer("optios-code").apply {
+            schedule(object : TimerTask() {
+                override fun run() = RelayState.rotateCode()
+            }, 60_000L, 60_000L)
+        }
+        codePillState(true)
+        binding.codePill.text = RelayState.code
+        Toast.makeText(this, "Relay on: $onScreen", Toast.LENGTH_LONG).show()
+    }
+
+    private fun stopRelay() {
+        RelayState.enabled = false
+        relayServer?.shutdown()
+        relayServer = null
+        codeTimer?.cancel()
+        codeTimer = null
+        codePillState(false)
+    }
+
+    private fun codePillState(visible: Boolean) {
+        binding.codePill.visibility = if (visible) View.VISIBLE else View.GONE
+        if (visible) {
+            RelayState.rotateCode()
+            binding.codePill.text = RelayState.code
+        }
+    }
+
+    private fun showSleep(asleep: Boolean) {
+        if (asleep) {
+            binding.sleepOverlay.fadeView(0.97f, View.VISIBLE)
+            window.attributes = window.attributes.apply { screenBrightness = 0.01f }
+        } else {
+            binding.sleepOverlay.fadeView(0f, View.GONE)
+            window.attributes = window.attributes.apply { screenBrightness = android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE }
+        }
+    }
+
+    private fun View.fadeView(targetAlpha: Float, visibility: Int) {
+        this.animate().alpha(targetAlpha).setDuration(250L).start()
+        this.visibility = visibility
+    }
+
+    private fun getPref(key: String, def: Boolean): Boolean = relayPrefs.getBoolean(key, def)
+    private fun setPref(key: String, value: Boolean) = relayPrefs.edit().putBoolean(key, value).apply()
+
+    companion object {
+        const val RELAY_ENABLED_KEY = "relay_enabled"
     }
 
     override fun onPause() {
@@ -143,6 +243,11 @@ class MainActivity : AppCompatActivity() {
 
     /** Full keyboard/D-pad: arrows between focusables, ENTER clicks, BACK exits to system. */
     override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+        // Any key wakes from OptiOS sleep (remote / BT keyboard / mouse click).
+        if (SleepController.isAsleep && event.action == android.view.KeyEvent.ACTION_DOWN) {
+            SleepController.setSleep(false)
+            return true
+        }
         if (event.action == android.view.KeyEvent.ACTION_DOWN) {
             when (event.keyCode) {
                 android.view.KeyEvent.KEYCODE_DPAD_CENTER,

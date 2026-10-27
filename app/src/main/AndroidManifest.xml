@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- OptiOS is a lean launcher: declare only permissions that are strictly
-         needed. Nothing here touches system packages or rooted actions. -->
+    <!-- OptiOS permissions, each one justified:
+         - INTERNET: local-LAN relay server (laptop -> projector control), no data leaves Wi-Fi.
+         - QUERY_ALL_PACKAGES not needed: launcher resolves launch intents via getLaunchIntentForPackage. -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
