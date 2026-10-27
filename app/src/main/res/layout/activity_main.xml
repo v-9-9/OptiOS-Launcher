@@ -9,8 +9,7 @@
     android:background="@drawable/bg_gradient_dark"
     tools:context=".MainActivity">
 
-
-    <!-- Rotating pairing code (until the weather glass box, top-right) -->
+    <!-- Rotating pairing code (under the weather glass box, top-right) -->
     <TextView
         android:id="@+id/codePill"
         android:layout_width="wrap_content"
@@ -123,7 +122,7 @@
             android:textColor="@color/optios_text_primary"
             android:textSize="24sp"
             android:textStyle="bold"
-            tools:text="32Â°C" />
+            tools:text="32°C" />
 
         <TextView
             android:id="@+id/weatherDesc"
@@ -194,7 +193,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:layout_weight="1"
                     android:indeterminate="false"
                     android:max="100"
                     android:progress="0"
