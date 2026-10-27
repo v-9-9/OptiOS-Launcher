@@ -60,6 +60,11 @@ class MainActivity : AppCompatActivity() {
 
         binding.tileYouTube.setOnClickListener { launchPackage(packageYouTube) }
         binding.tileCinemana.setOnClickListener { launchPackage(packageCinemana) }
+        // Explicit D-pad/keyboard navigation (fixes focus issues on HID keyboards):
+        binding.tileYouTube.nextFocusDownId = R.id.dockApps
+        binding.tileCinemana.nextFocusDownId = R.id.dockControls
+        binding.tileYouTube.nextFocusRightId = R.id.tileCinemana
+        binding.tileCinemana.nextFocusLeftId = R.id.tileYouTube
         binding.dockApps.setOnClickListener { toastInProgress("Apps") }
         binding.dockControls.setOnClickListener { toastInProgress("Controls") }
         binding.dockSettings.setOnClickListener { openSystemSettings() }
@@ -134,6 +139,33 @@ class MainActivity : AppCompatActivity() {
         binding.mediaArtist.text = snap.artist
         binding.mediaProgress.progressTintList =
             android.content.res.ColorStateList.valueOf(snap.accentColor)
+    }
+
+    /** Full keyboard/D-pad: arrows between focusables, ENTER clicks, BACK exits to system. */
+    override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+        if (event.action == android.view.KeyEvent.ACTION_DOWN) {
+            when (event.keyCode) {
+                android.view.KeyEvent.KEYCODE_DPAD_CENTER,
+                android.view.KeyEvent.KEYCODE_ENTER ->
+                    currentFocus?.performClick()
+                android.view.KeyEvent.KEYCODE_DPAD_UP,
+                android.view.KeyEvent.KEYCODE_DPAD_DOWN,
+                android.view.KeyEvent.KEYCODE_DPAD_LEFT,
+                android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    val next = currentFocus?.focusSearch(dirFor(event.keyCode))
+                    if (next != null && next.isFocusable) next.requestFocus() else return false
+                    return true
+                }
+            }
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
+    private fun dirFor(keyCode: Int): Int = when (keyCode) {
+        android.view.KeyEvent.KEYCODE_DPAD_UP -> View.FOCUS_UP
+        android.view.KeyEvent.KEYCODE_DPAD_DOWN -> View.FOCUS_DOWN
+        android.view.KeyEvent.KEYCODE_DPAD_LEFT -> View.FOCUS_LEFT
+        else -> View.FOCUS_RIGHT
     }
 
     private fun applyImmersiveMode() {

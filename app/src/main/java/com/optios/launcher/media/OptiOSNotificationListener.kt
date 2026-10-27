@@ -1,10 +1,7 @@
 package com.optios.launcher.media
 
-import android.app.Notification
-import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import androidx.media.app.NotificationCompat
 import java.util.ArrayDeque
 import java.util.Deque
 
@@ -31,14 +28,12 @@ class OptiOSNotificationListener : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val extras = sbn.notification?.extras ?: return
-        val isMedia = sbn.notification?.actions?.any { it.actionIntent != null } == true &&
-            extras.get(Notification.EXTRA_TITLE) != null &&
-            isMediaNotification(sbn)
+        val isMedia = isMediaNotification(sbn)
         val entry = HistoryEntry(
             key = sbn.key ?: return,
             packageName = sbn.packageName ?: return,
-            title = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString().orEmpty(),
-            text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString().orEmpty(),
+            title = extras.getCharSequence(android.app.Notification.EXTRA_TITLE)?.toString().orEmpty(),
+            text = extras.getCharSequence(android.app.Notification.EXTRA_TEXT)?.toString().orEmpty(),
             whenPosted = sbn.postTime,
         )
         if (entry.title.isNotBlank()) {
@@ -48,15 +43,23 @@ class OptiOSNotificationListener : NotificationListenerService() {
                 while (history.size > MAX_HISTORY) history.removeLast()
             }
         }
-        // Hand-off to the media card watcher.
         MediaCardState.onNotificationSeen(this, sbn, isMedia)
     }
 
-    private fun isMediaNotification(sbn: StatusBarNotification): Boolean =
-        NotificationCompat.isMediaNotification(sbn.notification) ||
-        sbn.packageName.contains("music") ||
-        sbn.packageName.contains("spotify") ||
-        sbn.packageName.contains("soundcloud")
+    /**
+     * Media-detection without androidx.media:
+     * Android attaches a MediaSession token under the extra key
+     * "android.mediaSession" for media-style notifications.
+     */
+    private fun isMediaNotification(sbn: StatusBarNotification): Boolean {
+        val extras = sbn.notification?.extras ?: return false
+        val hasSession = extras.get("android.mediaSession") != null
+        val looksLikeMusic = sbn.packageName.contains("music") ||
+            sbn.packageName.contains("spotify") ||
+            sbn.packageName.contains("soundcloud") ||
+            sbn.packageName.contains("youtube")
+        return hasSession || (sbn.isOngoing && looksLikeMusic)
+    }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         synchronized(history) {
