@@ -90,40 +90,18 @@
             android:gravity="center_horizontal"
             android:orientation="vertical">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/clockText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="bottom"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/clockText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-thin"
-                    android:shadowColor="#80FFFFFF"
-                    android:shadowDx="0"
-                    android:shadowDy="0"
-                    android:shadowRadius="14"
-                    android:textColor="@color/optios_text_primary"
-                    android:textSize="46sp"
-                    tools:text="22:09" />
-
-                <TextView
-                    android:id="@+id/clockSeconds"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginBottom="6dp"
-                    android:fontFamily="sans-serif-light"
-                    android:shadowColor="@color/optios_accent"
-                    android:shadowDx="0"
-                    android:shadowDy="0"
-                    android:shadowRadius="10"
-                    android:textColor="@color/optios_accent"
-                    android:textSize="20sp"
-                    tools:text="41" />
-            </LinearLayout>
+                android:fontFamily="sans-serif-thin"
+                android:shadowColor="#80FFFFFF"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="14"
+                android:textColor="@color/optios_text_primary"
+                android:textSize="42sp"
+                tools:text="22:09" />
 
             <TextView
                 android:id="@+id/dateText"

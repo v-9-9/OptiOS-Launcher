@@ -29,14 +29,18 @@ class DayNightClockView @JvmOverloads constructor(
         style = Paint.Style.STROKE
         color = 0x1EFFFFFF
     }
+    private val glassFill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = 0x12161926.toInt()
+    }
     private val dayPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        color = 0xB3FFB35C.toInt()  // warm amber
+        color = 0xA6FFB35C.toInt()        // warm amber, softer
         strokeCap = Paint.Cap.ROUND
     }
     private val nightPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        color = 0xA67B6BFF.toInt()  // soft violet
+        color = 0x997B6BFF.toInt()        // soft violet, softer
         strokeCap = Paint.Cap.ROUND
     }
     private val markerGlow = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -80,11 +84,14 @@ class DayNightClockView @JvmOverloads constructor(
         val seconds = c.get(Calendar.SECOND)
         val hourFrac = hours + minutes / 60f + seconds / 3600f
 
-        val stroke = width * 0.055f
+        val stroke = width * 0.05f
         val half = minOf(width, height) / 2f
         val cx = width / 2f
         val cy = height / 2f
         val radius = half - stroke * 1.6f
+
+        // Soft glass fill behind the digits.
+        canvas.drawCircle(cx, cy, radius - stroke * 0.5f, glassFill)
 
         trackPaint.strokeWidth = stroke
         dayPaint.strokeWidth = stroke
