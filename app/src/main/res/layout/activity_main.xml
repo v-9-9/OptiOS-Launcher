@@ -147,7 +147,7 @@
             android:contentDescription="@string/dock_apps" />
 
         <TextView
-            android:id="@+id/dockActions"
+            android:id="@+id/dockControls"
             style="@style/DockItem"
             android:text="@string/dock_controls"
             android:contentDescription="@string/dock_controls" />
