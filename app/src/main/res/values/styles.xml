@@ -24,12 +24,34 @@
     <style name="DockItem">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingHorizontal">22dp</item>
-        <item name="android:paddingVertical">10dp</item>
+        <item name="android:paddingHorizontal">34dp</item>
+        <item name="android:paddingVertical">12dp</item>
+        <item name="android:layout_marginHorizontal">10dp</item>
         <item name="android:textColor">@color/optios_text_primary</item>
         <item name="android:textSize">16sp</item>
         <item name="android:focusable">true</item>
         <item name="android:clickable">true</item>
         <item name="android:background">@drawable/bg_tile_selector</item>
+    </style>
+
+    <style name="DockDivider">
+        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_height">34dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:background">#26FFFFFF</item>
+    </style>
+
+    <style name="PanelButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginHorizontal">6dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/bg_tile_selector</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingVertical">12dp</item>
+        <item name="android:textColor">@color/optios_text_primary</item>
+        <item name="android:textSize">15sp</item>
     </style>
 </resources>

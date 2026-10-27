@@ -263,15 +263,69 @@
             style="@style/DockItem"
             android:text="@string/dock_apps" />
 
+        <View style="@style/DockDivider" />
+
         <TextView
             android:id="@+id/dockControls"
             style="@style/DockItem"
             android:text="@string/dock_controls" />
 
+        <View style="@style/DockDivider" />
+
         <TextView
             android:id="@+id/dockSettings"
             style="@style/DockItem"
             android:text="@string/dock_settings" />
+    </LinearLayout>
+
+    <!-- ============ CONTROL CENTER (slide-up glass panel, from the remote) ============ -->
+    <LinearLayout
+        android:id="@+id/controlPanel"
+        android:layout_width="640dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="90dp"
+        android:alpha="0"
+        android:background="@drawable/bg_glass_card"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/panelCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:textColor="@color/optios_accent"
+            android:textSize="22sp" />
+
+        <TextView
+            android:id="@+id/panelIp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.7"
+            android:textColor="@color/optios_text_primary"
+            android:textSize="13sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/btnPanelRelay"
+                style="@style/PanelButton"
+                android:text="@string/panel_relay" />
+
+            <TextView
+                android:id="@+id/btnPanelSleep"
+                style="@style/PanelButton"
+                android:text="@string/panel_sleep" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Sleep / privacy-black overlay (full, opaque, above everything) -->

@@ -72,14 +72,43 @@ class MainActivity : AppCompatActivity() {
         binding.tileCinemana.nextFocusLeftId = R.id.tileYouTube
         binding.dockApps.setOnClickListener { toastInProgress("Apps") }
         // Controls = toggle the local relay (laptop -> projector, opt-in)
-        binding.dockControls.setOnClickListener { toggleRelay() }
+        binding.dockControls.setOnClickListener { toggleControlPanel() }
         binding.dockSettings.setOnClickListener { openSystemSettings() }
         binding.tileYouTube.requestFocus()
         // Restore sleep state if it was left on:
         if (SleepController.isAsleep) showSleep(true)
+        // Wire the Control Center panel buttons:
+        binding.btnPanelRelay.setOnClickListener { toggleRelay(); refreshPanelInfo() }
+        binding.btnPanelSleep.setOnClickListener {
+            SleepController.setSleep(!SleepController.isAsleep)
+        }
 
         applyFocusAnimations()
         playEntranceAnimation()
+    }
+
+    /** In-launcher Control Center: slide-up glass panel. */
+    private fun toggleControlPanel() {
+        refreshPanelInfo()
+        if (binding.controlPanel.visibility == View.VISIBLE) {
+            binding.controlPanel.animate().alpha(0f).translationY(30f).setDuration(180L)
+                .withEndAction { binding.controlPanel.visibility = View.GONE }.start()
+        } else {
+            binding.controlPanel.visibility = View.VISIBLE
+            binding.controlPanel.translationY = 30f
+            binding.controlPanel.animate().alpha(1f).translationY(0f).setDuration(200L)
+                .setInterpolator(DecelerateInterpolator()).start()
+            binding.btnPanelRelay.requestFocus()
+        }
+    }
+
+    private fun refreshPanelInfo() {
+        binding.panelCode.text = getString(R.string.panel_code_label, RelayState.code)
+        binding.panelIp.text = getString(
+            R.string.panel_ip_label,
+            ReadLocalIp.ipv4 ?: "no-wifi",
+            RelayState.port
+        )
     }
 
     override fun onResume() {
@@ -214,8 +243,9 @@ class MainActivity : AppCompatActivity() {
         val views = listOf<View>(binding.clockBlock, binding.tileYouTube, binding.tileCinemana, binding.dockRow)
         views.forEachIndexed { i, v ->
             v.alpha = 0f
-            v.translationY = 24f
-            v.animate().alpha(1f).translationY(0f)
+            v.scaleX = 0.96f
+            v.scaleY = 0.96f
+            v.animate().alpha(1f).scaleX(1f).scaleY(1f)
                 .setStartDelay(i * 60L)
                 .setDuration(200L)
                 .setInterpolator(DecelerateInterpolator())
