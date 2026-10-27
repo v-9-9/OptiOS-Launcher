@@ -45,8 +45,11 @@ class MainActivity : AppCompatActivity() {
     private val clockTicker = object : Runnable {
         override fun run() {
             val now = Date()
-            binding.clockText.text = clockFormat.format(now)
-            binding.dateText.text = dateFormat.format(now)
+            val hm = clockFormat.format(now)
+            if (binding.clockText.text != hm) {
+                binding.clockText.text = hm
+                binding.dateText.text = dateFormat.format(now)
+            }
             // Keep the Control Center code in sync with the 60s rotation:
             if (binding.controlPanel.visibility == View.VISIBLE) {
                 binding.panelCode.text = getString(R.string.panel_code_label, RelayState.code)

@@ -35,6 +35,10 @@ object RelayState {
 
     fun rotateCode() {
         code = "%06d".format(Locale.US, rnd.nextInt(1_000_000))
+        // Debug-builds-only trace so on-device tests can read the current code.
+        if (com.optios.launcher.BuildConfig.DEBUG) {
+            android.util.Log.d("OptiOS", "code=$code")
+        }
     }
 
     fun validateCode(candidate: String?): Boolean =
