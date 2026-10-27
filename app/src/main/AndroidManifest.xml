@@ -16,16 +16,30 @@
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|navigation|screenLayout"
+            android:clearTaskOnLaunch="true"
             android:exported="true"
             android:label="@string/app_name"
             android:launchMode="singleTask"
+            android:resizeableActivity="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.OptiOS">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".media.OptiOSNotificationListener"
+            android:exported="false"
+            android:label="@string/notification_listener_label"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

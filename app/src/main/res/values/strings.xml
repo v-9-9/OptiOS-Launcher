@@ -9,4 +9,5 @@
     <string name="dock_controls">Controls</string>
     <string name="dock_settings">Settings</string>
     <string name="app_not_found">App not installed</string>
+    <string name="notification_listener_label">OptiOS media + notifications</string>
 </resources>

@@ -7,18 +7,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient_dark"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
     tools:context=".MainActivity">
 
-    <!-- ================= TOP ROW ================= -->
-    <!-- Big English clock: left -->
+    <!-- ============ TOP: CLOCK LEFT / WEATHER RIGHT ============ -->
     <LinearLayout
         android:id="@+id/clockBlock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="20dp"
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -27,37 +24,37 @@
             android:id="@+id/clockText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-light"
-            android:shadowColor="#80000000"
+            android:fontFamily="sans-serif-thin"
+            android:shadowColor="#B3000000"
             android:shadowDx="0"
-            android:shadowDy="2"
-            android:shadowRadius="6"
+            android:shadowDy="3"
+            android:shadowRadius="10"
             android:textColor="@color/optios_text_primary"
-            android:textSize="72sp"
+            android:textSize="60sp"
             tools:text="14:52" />
 
         <TextView
             android:id="@+id/dateText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:alpha="0.8"
+            android:alpha="0.75"
+            android:fontFamily="sans-serif-light"
             android:textColor="@color/optios_text_primary"
-            android:textSize="16sp"
+            android:textSize="14sp"
             tools:text="Monday, Oct 27" />
     </LinearLayout>
 
-    <!-- Weather: right -->
     <LinearLayout
         android:id="@+id/weatherBlock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="28dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginTop="24dp"
         android:background="@drawable/bg_glass_card"
-        android:orientation="vertical"
-        android:paddingHorizontal="22dp"
-        android:paddingVertical="14dp"
         android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -66,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/optios_text_primary"
-            android:textSize="30sp"
+            android:textSize="24sp"
             android:textStyle="bold"
             tools:text="32°C" />
 
@@ -74,13 +71,83 @@
             android:id="@+id/weatherDesc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:alpha="0.85"
+            android:alpha="0.8"
             android:textColor="@color/optios_text_primary"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:text="@string/weather_placeholder" />
     </LinearLayout>
 
-    <!-- ================= HERO TILES ================= -->
+    <!-- ============ MUSIC "CD CARD" (appears when a song plays) ============ -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/mediaCard"
+        android:layout_width="420dp"
+        android:layout_height="132dp"
+        android:layout_marginTop="18dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="#141924"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        app:layout_constraintStart_toStartOf="@id/clockBlock"
+        app:layout_constraintTop_toBottomOf="@id/clockBlock">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:padding="14dp">
+
+            <ImageView
+                android:id="@+id/mediaArt"
+                android:layout_width="104dp"
+                android:layout_height="104dp"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/ic_launcher" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="16dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/mediaTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/optios_text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    tools:text="Song title" />
+
+                <TextView
+                    android:id="@+id/mediaArtist"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:alpha="0.7"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/optios_text_primary"
+                    android:textSize="14sp"
+                    tools:text="Artist" />
+
+                <ProgressBar
+                    android:id="@+id/mediaProgress"
+                    style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="1"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressTint="@color/optios_accent" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- ============ HERO TILES (smaller, refined) ============ -->
     <LinearLayout
         android:id="@+id/tileRow"
         android:layout_width="wrap_content"
@@ -89,17 +156,15 @@
         app:layout_constraintBottom_toTopOf="@id/dockRow"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/clockBlock"
-        app:layout_constraintVertical_bias="0.5">
+        app:layout_constraintTop_toBottomOf="@id/clockBlock">
 
-        <!-- YouTube tile -->
         <LinearLayout
             android:id="@+id/tileYouTube"
             style="@style/GlassTile">
 
             <ImageView
-                android:layout_width="92dp"
-                android:layout_height="92dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
                 android:contentDescription="@string/tile_youtube"
                 android:src="@drawable/ic_tile_youtube" />
 
@@ -108,14 +173,13 @@
                 android:text="@string/tile_youtube" />
         </LinearLayout>
 
-        <!-- Cinemana tile -->
         <LinearLayout
             android:id="@+id/tileCinemana"
             style="@style/GlassTile">
 
             <ImageView
-                android:layout_width="92dp"
-                android:layout_height="92dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
                 android:contentDescription="@string/tile_cinemana"
                 android:src="@drawable/ic_tile_cinemana" />
 
@@ -125,17 +189,17 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- ================= BOTTOM DOCK ================= -->
+    <!-- ============ DOCK ============ -->
     <LinearLayout
         android:id="@+id/dockRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="22dp"
+        android:layout_marginBottom="18dp"
         android:background="@drawable/bg_glass_card"
         android:gravity="center"
         android:orientation="horizontal"
-        android:paddingHorizontal="18dp"
-        android:paddingVertical="10dp"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -143,20 +207,17 @@
         <TextView
             android:id="@+id/dockApps"
             style="@style/DockItem"
-            android:text="@string/dock_apps"
-            android:contentDescription="@string/dock_apps" />
+            android:text="@string/dock_apps" />
 
         <TextView
             android:id="@+id/dockControls"
             style="@style/DockItem"
-            android:text="@string/dock_controls"
-            android:contentDescription="@string/dock_controls" />
+            android:text="@string/dock_controls" />
 
         <TextView
             android:id="@+id/dockSettings"
             style="@style/DockItem"
-            android:text="@string/dock_settings"
-            android:contentDescription="@string/dock_settings" />
+            android:text="@string/dock_settings" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
