@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Focused tile state: brighter glass, visible glow border -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:angle="270"
+        android:startColor="#59FFFFFF"
+        android:centerColor="#22FFFFFF"
+        android:endColor="#10FFFFFF"
+        android:type="linear" />
+    <corners android:radius="24dp" />
+    <stroke android:width="2dp" android:color="#8FCBFF" />
+</shape>

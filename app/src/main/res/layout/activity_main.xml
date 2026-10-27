@@ -7,22 +7,156 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient_dark"
-    android:keepScreenOn="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context=".MainActivity">
 
-    <!-- Milestone 1 placeholder launcher surface.
-         Liquid-Glass tiles, clock/weather strip and app drawer attach here. -->
-
-    <TextView
-        android:id="@+id/os_version_text"
+    <!-- ================= TOP ROW ================= -->
+    <!-- Big English clock: left -->
+    <LinearLayout
+        android:id="@+id/clockBlock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="24dp"
-        android:textColor="#99FFFFFF"
-        android:textSize="13sp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="24dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/clockText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:shadowColor="#80000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="6"
+            android:textColor="@color/optios_text_primary"
+            android:textSize="72sp"
+            tools:text="14:52" />
+
+        <TextView
+            android:id="@+id/dateText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.8"
+            android:textColor="@color/optios_text_primary"
+            android:textSize="16sp"
+            tools:text="Monday, Oct 27" />
+    </LinearLayout>
+
+    <!-- Weather: right -->
+    <LinearLayout
+        android:id="@+id/weatherBlock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="28dp"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/bg_glass_card"
+        android:orientation="vertical"
+        android:paddingHorizontal="22dp"
+        android:paddingVertical="14dp"
+        android:gravity="center_horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Android 9" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/weatherTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/optios_text_primary"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            tools:text="32°C" />
+
+        <TextView
+            android:id="@+id/weatherDesc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.85"
+            android:textColor="@color/optios_text_primary"
+            android:textSize="14sp"
+            android:text="@string/weather_placeholder" />
+    </LinearLayout>
+
+    <!-- ================= HERO TILES ================= -->
+    <LinearLayout
+        android:id="@+id/tileRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/dockRow"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/clockBlock"
+        app:layout_constraintVertical_bias="0.5">
+
+        <!-- YouTube tile -->
+        <LinearLayout
+            android:id="@+id/tileYouTube"
+            style="@style/GlassTile">
+
+            <ImageView
+                android:layout_width="92dp"
+                android:layout_height="92dp"
+                android:contentDescription="@string/tile_youtube"
+                android:src="@drawable/ic_tile_youtube" />
+
+            <TextView
+                style="@style/GlassTileLabel"
+                android:text="@string/tile_youtube" />
+        </LinearLayout>
+
+        <!-- Cinemana tile -->
+        <LinearLayout
+            android:id="@+id/tileCinemana"
+            style="@style/GlassTile">
+
+            <ImageView
+                android:layout_width="92dp"
+                android:layout_height="92dp"
+                android:contentDescription="@string/tile_cinemana"
+                android:src="@drawable/ic_tile_cinemana" />
+
+            <TextView
+                style="@style/GlassTileLabel"
+                android:text="@string/tile_cinemana" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ================= BOTTOM DOCK ================= -->
+    <LinearLayout
+        android:id="@+id/dockRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="22dp"
+        android:background="@drawable/bg_glass_card"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingHorizontal="18dp"
+        android:paddingVertical="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/dockApps"
+            style="@style/DockItem"
+            android:text="@string/dock_apps"
+            android:contentDescription="@string/dock_apps" />
+
+        <TextView
+            android:id="@+id/dockActions"
+            style="@style/DockItem"
+            android:text="@string/dock_controls"
+            android:contentDescription="@string/dock_controls" />
+
+        <TextView
+            android:id="@+id/dockSettings"
+            style="@style/DockItem"
+            android:text="@string/dock_settings"
+            android:contentDescription="@string/dock_settings" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

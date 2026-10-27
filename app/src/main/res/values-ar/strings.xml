@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">أوبتيOS</string>
-    <string name="os_version_line">أندرويد %1$s</string>
+    <string name="app_name">OptiOS</string>
+    <string name="os_version_line">Android %1$s</string>
+    <string name="weather_placeholder">الطقس قريباً…</string>
+    <string name="tile_youtube">يوتيوب</string>
+    <string name="tile_cinemana">سينمانا</string>
+    <string name="dock_apps">التطبيقات</string>
+    <string name="dock_controls">التحكم</string>
+    <string name="dock_settings">الإعدادات</string>
+    <string name="app_not_found">التطبيق غير مثبت</string>
 </resources>

@@ -2,4 +2,11 @@
 <resources>
     <string name="app_name">OptiOS</string>
     <string name="os_version_line">Android %1$s</string>
+    <string name="weather_placeholder">Weather soon…</string>
+    <string name="tile_youtube">YouTube</string>
+    <string name="tile_cinemana">Cinemana</string>
+    <string name="dock_apps">Apps</string>
+    <string name="dock_controls">Controls</string>
+    <string name="dock_settings">Settings</string>
+    <string name="app_not_found">App not installed</string>
 </resources>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Large tile style: glass card + focus selector + press animation -->
+    <style name="GlassTile">
+        <item name="android:layout_width">260dp</item>
+        <item name="android:layout_height">300dp</item>
+        <item name="android:layout_marginHorizontal">16dp</item>
+        <item name="android:background">@drawable/bg_tile_selector</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:nextFocusUp">@id/dockRow</item>
+        <item name="android:scaleX">1.0</item>
+        <item name="android:scaleY">1.0</item>
+    </style>
+
+    <style name="GlassTileLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:textColor">@color/optios_text_primary</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="DockItem">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingHorizontal">22dp</item>
+        <item name="android:paddingVertical">10dp</item>
+        <item name="android:textColor">@color/optios_text_primary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:background">@drawable/bg_tile_selector</item>
+    </style>
+</resources>
