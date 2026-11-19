@@ -12,6 +12,12 @@
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
+    <!-- Android 11 package visibility: needed so tiles can resolve launch intents. -->
+    <queries>
+        <package android:name="com.google.android.youtube.tv" />
+        <package android:name="com.shabakaty.cinemana" />
+    </queries>
+
     <application
         android:allowBackup="true"
         android:banner="@drawable/ic_launcher_banner"

@@ -2,6 +2,7 @@ package com.optios.launcher
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -9,8 +10,7 @@ import android.util.Log
 import android.view.View
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.view.animation.OvershootInterpolator
-import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -23,19 +23,24 @@ import com.optios.launcher.status.StatusDonutsView
 import com.optios.launcher.wallpaper.MacroStore
 import com.optios.launcher.wallpaper.ThemeEngine
 import com.optios.launcher.wallpaper.WallpaperStore
+import org.json.JSONObject
 import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 /**
- * OptiOS — warm glass home for the HY320 projector.
+ * OptiOS — futuristic liquid-glass home for the HY320 projector.
  *
  * - Centered serif clock, square glass tiles, USAGE donuts, dock.
- * - Wallpaper layer: any jpg/png in /sdcard/Pictures/OptiOS picked from the
- *   Control Center; theme (ADAPTIVE) derives its accent from the photo.
- * - Macro recorder: Record → press any key (e.g. F9) → choose an action
- *   (YouTube / Cinemana / switch / sleep). Bindings persist.
+ * - Full theme system: presets change the ENTIRE look (background gradient,
+ *   glass tint/borders, glow, accent) + independent accent-color picker.
+ * - Wallpapers from /sdcard/Pictures/OptiOS with Palette-derived Auto accent;
+ *   Control Center = frosted popover anchored above the Controls button.
+ * - Macro recorder: Record -> press key (e.g. F9) -> choose action.
+ * - Live weather (Open-Meteo, located via network geolocation).
  */
 class MainActivity : AppCompatActivity() {
 
@@ -49,8 +54,9 @@ class MainActivity : AppCompatActivity() {
     private var lastLaunched: String? = null
 
     // ---- Wallpaper + theme state ----
-    private var wallIndex = 0
-    private var lastAccent: Int = 0xFFE8A15C.toInt()
+    private var blurredWall: Bitmap? = null
+    private var currentTheme: ThemeEngine.Theme? = null
+    private val swatchViews = mutableListOf<View>()
 
     // ---- Macro recorder ----
     private var recordingKey = false
@@ -89,6 +95,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** Weather refresh loop (first fetch immediately, then every 30 min). */
+    private val weatherTicker = object : Runnable {
+        override fun run() {
+            fetchWeather()
+            handler.postDelayed(this, 30 * 60_000L)
+        }
+    }
+
     // ============================== Lifecycle ==============================
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,6 +112,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.tileYouTube.setOnClickListener { launchPackage(packageYouTube) }
         binding.tileCinemana.setOnClickListener { launchPackage(packageCinemana) }
+        // Explicit D-pad/keyboard navigation (fixes focus issues on HID keyboards):
         binding.tileYouTube.nextFocusDownId = R.id.dockApps
         binding.tileCinemana.nextFocusDownId = R.id.dockControls
         binding.tileYouTube.nextFocusRightId = R.id.tileCinemana
@@ -118,23 +133,25 @@ class MainActivity : AppCompatActivity() {
 
         if (SleepController.isAsleep) showSleep(true)
         macros = MacroStore.load(this)
+        populateAccentSwatches()
 
         // ---- Control Center wiring ----
-        binding.controlCenter.btnPanelSleep.setOnClickListener {
-            SleepController.setSleep(!SleepController.isAsleep)
-        }
-        binding.controlCenter.btnWallPrev.setOnClickListener { cycleWallpaper(-1) }
-        binding.controlCenter.btnWallNext.setOnClickListener { cycleWallpaper(+1) }
-        binding.controlCenter.btnWallDefault.setOnClickListener { applyWallpaper(null) }
-        binding.controlCenter.btnThemeAuto.setOnClickListener { applyTheme(ThemeEngine.Preset.ADAPTIVE) }
-        binding.controlCenter.btnThemeWarm.setOnClickListener { applyTheme(ThemeEngine.Preset.WARM_DESK) }
-        binding.controlCenter.btnThemeTokyo.setOnClickListener { applyTheme(ThemeEngine.Preset.TOKYO_NIGHT) }
-        binding.controlCenter.btnThemeDark.setOnClickListener { applyTheme(ThemeEngine.Preset.DARK_GLASS) }
-        binding.controlCenter.btnRecord.setOnClickListener { startRecording() }
-        binding.controlCenter.btnClearMacros.setOnClickListener {
+        binding.btnPanelSleep.setOnClickListener { SleepController.setSleep(!SleepController.isAsleep) }
+        binding.btnWallPrev.setOnClickListener { cycleWallpaper(-1) }
+        binding.btnWallNext.setOnClickListener { cycleWallpaper(+1) }
+        binding.btnWallDefault.setOnClickListener { applyWallpaper(null) }
+        binding.btnThemeAuto.setOnClickListener { applyThemePreset(ThemeEngine.Preset.ADAPTIVE) }
+        binding.btnThemeWarm.setOnClickListener { applyThemePreset(ThemeEngine.Preset.WARM_DESK) }
+        binding.btnThemeTokyo.setOnClickListener { applyThemePreset(ThemeEngine.Preset.TOKYO_NIGHT) }
+        binding.btnThemeDark.setOnClickListener { applyThemePreset(ThemeEngine.Preset.DARK_GLASS) }
+        binding.btnRecord.setOnClickListener { startRecording() }
+        binding.btnClearMacros.setOnClickListener {
             macros.clear(); MacroStore.save(this, macros)
-            binding.controlCenter.macroStatus.text = "Shortcuts cleared"
+            binding.macroStatus.text = "Shortcuts cleared"
         }
+
+        // Rounded clipping for the frosted popover + its backdrop layers.
+        binding.controlCenter.clipToOutline = true
 
         applyFocusAnimations()
         if (!entrancePlayed) {
@@ -151,8 +168,9 @@ class MainActivity : AppCompatActivity() {
         updateMediaCard()
         handler.postDelayed(mediaTicker, 1_000L)
         handler.postDelayed(statusTicker, 500L)
+        handler.post(weatherTicker)
         SleepController.sleepListener = { asleep ->
-            overlayHandler.post { showSleep(asleep) }
+            handler.post { showSleep(asleep) }
         }
         // Re-apply theme + wallpaper (survives returning from apps). First run
         // auto-picks the first photo in the store so the desk photo shows immediately.
@@ -170,6 +188,7 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacks(clockTicker)
         handler.removeCallbacks(mediaTicker)
         handler.removeCallbacks(statusTicker)
+        handler.removeCallbacks(weatherTicker)
         MediaCardState.updateListener = null
     }
 
@@ -191,28 +210,21 @@ class MainActivity : AppCompatActivity() {
             val viewW = resources.displayMetrics.widthPixels
             val viewH = resources.displayMetrics.heightPixels
             val bmp = file?.let { WallpaperStore.decode(it, viewW, viewH) }
+            blurredWall = blurPanel(bmp)
             handler.post {
                 if (bmp != null) {
                     binding.wallpaperView.setImageBitmap(bmp)
                     // Fade-in so the wallpaper never pops harshly (smoothness first).
                     binding.wallpaperView.alpha = 0f
-                    binding.wallpaperView.visibility = ImageView.VISIBLE
+                    binding.wallpaperView.visibility = View.VISIBLE
                     binding.wallpaperView.animate().alpha(1f)
                         .setDuration(280L).setInterpolator(DecelerateInterpolator()).start()
                     binding.scrimView.visibility = View.VISIBLE
-                    // Square fit: scaleType centerCrop already set in layout.
                 } else {
                     binding.wallpaperView.visibility = View.GONE
                     binding.scrimView.visibility = View.GONE
                 }
-                val preset = ThemeEngine.load(this)
-                val theme = ThemeEngine.resolve(preset, file, viewW, viewH)
-                lastAccent = theme.accent
-                binding.controlCenter.macroStatus.setTextColor(theme.accent)
-                binding.mediaProgress.progressTintList =
-                    android.content.res.ColorStateList.valueOf(theme.accent)
-                binding.donutsView.setAccent(theme.accent)
-                binding.clockText.setShadowGlow(theme.accent)
+                refreshTheme()
             }
         }.start()
     }
@@ -220,41 +232,164 @@ class MainActivity : AppCompatActivity() {
     private fun cycleWallpaper(dir: Int) {
         val list = WallpaperStore.list()
         if (list.isEmpty()) {
-            toast("Put jpg/png files in $WallpaperStore.DIR")
+            toast("Put jpg/png files in $DIR_WALLPAPERS")
             return
         }
         val current = WallpaperStore.selected(this)
         var idx = list.indexOfFirst { it.absolutePath == current?.absolutePath }
         idx = if (idx < 0) 0 else (idx + dir + list.size) % list.size
         applyWallpaper(list[idx])
-        binding.controlCenter.wallName.text = list[idx].name
+        refreshCcInfo()
     }
 
-    private fun applyTheme(preset: ThemeEngine.Preset) {
-        ThemeEngine.save(this, preset)
-        applyWallpaper(WallpaperStore.selected(this))
+    private fun applyThemePreset(preset: ThemeEngine.Preset) {
+        ThemeEngine.savePreset(this, preset)
+        refreshTheme()
         Toast.makeText(this, "Theme: ${preset.label}", Toast.LENGTH_SHORT).show()
     }
 
-    private fun android.widget.TextView.setShadowGlow(color: Int) {
-        val d = shadowDy
-        setShadowLayer(shadowRadius, shadowDx, d, color)
+    private fun setAccent(color: Int) {
+        ThemeEngine.saveAccent(this, color)
+        refreshTheme()
+    }
+
+    /** Rebuild the whole visual system for preset + accent override + wallpaper. */
+    private fun refreshTheme() {
+        val t = ThemeEngine.resolve(
+            ThemeEngine.load(this),
+            ThemeEngine.accentOverride(this),
+            WallpaperStore.selected(this),
+            resources.displayMetrics.widthPixels,
+            resources.displayMetrics.heightPixels,
+        )
+        currentTheme = t
+        applyThemeColors(t)
+        updateAccentSwatches()
+    }
+
+    private fun applyThemeColors(t: ThemeEngine.Theme) {
+        binding.root.background = ThemeEngine.backgroundGradient(this, t)
+
+        val cardRadius = 26f
+        listOf(binding.weatherBlock, binding.statusWidget, binding.mediaCard, binding.controlCenter)
+            .forEach { it.background = ThemeEngine.glass(this, t, cardRadius) }
+        binding.dockRow.background = ThemeEngine.glass(this, t, 32f)
+
+        listOf(binding.tileYouTube, binding.tileCinemana).forEach {
+            it.background = ThemeEngine.selector(this, t, cardRadius)
+        }
+        listOf(binding.dockApps, binding.dockControls, binding.dockSettings).forEach {
+            it.background = ThemeEngine.selector(this, t, cardRadius)
+        }
+        panelButtons().forEach { it.background = ThemeEngine.selector(this, t, 22f) }
+
+        binding.ccDim.setBackgroundColor(t.dimScrim)
+        binding.ccTint.setBackgroundColor((t.surfaceBottom and 0xFFFFFF) or 0x99000000.toInt())
+
+        binding.clockText.setShadowLayer(16f, 0f, 0f, t.glow)
+        binding.macroStatus.setTextColor(t.accent)
+        binding.mediaProgress.progressTintList =
+            android.content.res.ColorStateList.valueOf(t.accent)
+        binding.donutsView.setAccent(t.accent)
+        lastAccentColor = t.accent
+    }
+
+    private fun panelButtons(): List<View> = listOf(
+        binding.btnWallPrev, binding.btnWallNext, binding.btnWallDefault,
+        binding.btnThemeAuto, binding.btnThemeWarm, binding.btnThemeTokyo, binding.btnThemeDark,
+        binding.btnRecord, binding.btnClearMacros, binding.btnPanelSleep,
+    )
+
+    private var lastAccentColor: Int = 0xFFE8A15C.toInt()
+
+    // =========================== Accent swatches ===========================
+
+    private fun populateAccentSwatches() {
+        val d = resources.displayMetrics.density
+        ThemeEngine.ACCENTS.forEach { c ->
+            val v = View(this)
+            val lp = LinearLayout.LayoutParams((26 * d).toInt(), (26 * d).toInt())
+            lp.marginStart = (8 * d).toInt()
+            lp.marginEnd = (8 * d).toInt()
+            v.layoutParams = lp
+            v.background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(c)
+                setStroke((2 * d).toInt(), 0xFFFFFFFF.toInt())
+                alpha = 140
+            }
+            v.isFocusable = true
+            v.isClickable = true
+            v.contentDescription = "Accent"
+            v.setOnClickListener { setAccent(c) }
+            binding.accentRow.addView(v)
+            swatchViews.add(v)
+        }
+    }
+
+    private fun updateAccentSwatches() {
+        val sel = currentTheme?.accent ?: return
+        swatchViews.forEachIndexed { i, v ->
+            (v.background as GradientDrawable).alpha = if (ThemeEngine.ACCENTS[i] == sel) 255 else 140
+        }
+    }
+
+    // ================================ Weather ==============================
+
+    private fun fetchWeather() {
+        Thread {
+            try {
+                val geo = JSONObject(httpGet("https://ipapi.co/json/", 8000))
+                val lat = geo.getDouble("latitude")
+                val lon = geo.getDouble("longitude")
+                val city = geo.optString("city", "")
+                val url = "https://api.open-meteo.com/v1/forecast" +
+                    "?latitude=$lat&longitude=$lon&current_weather=true&timezone=auto"
+                val cur = JSONObject(httpGet(url, 8000)).getJSONObject("current_weather")
+                val temp = cur.getDouble("temperature").toInt()
+                val code = cur.getInt("weathercode")
+                handler.post { if (!isFinishing) bindWeather(temp, code, city) }
+            } catch (e: Exception) {
+                Log.w(TAG, "weather failed: ${e.message}")
+            }
+        }.start()
+    }
+
+    private fun httpGet(url: String, timeoutMs: Int): String {
+        val conn = URL(url).openConnection() as HttpURLConnection
+        conn.connectTimeout = timeoutMs
+        conn.readTimeout = timeoutMs
+        return conn.inputStream.bufferedReader().use { it.readText() }
+    }
+
+    private fun bindWeather(temp: Int, code: Int, city: String) {
+        binding.weatherTemp.text = "${temp}°"
+        binding.weatherDesc.text = wmoLabel(code) + if (city.isNotBlank()) " · $city" else ""
+    }
+
+    private fun wmoLabel(code: Int): String = when (code) {
+        0 -> "☀ Clear"
+        1, 2 -> "⛅ Partly cloudy"
+        3 -> "☁ Overcast"
+        45, 48 -> "🌫 Fog"
+        51, 53, 55, 56, 57 -> "🌦 Drizzle"
+        61, 63, 65, 66, 67, 80, 81, 82 -> "🌧 Rain"
+        71, 73, 75, 77, 85, 86 -> "❄ Snow"
+        95, 96, 99 -> "⛈ Storm"
+        else -> "• Sky"
     }
 
     // ========================= Control Center panel ========================
 
-    /** Control Center popover: rises from the dock's Controls button (flat 2D). */
     private fun toggleControlCenter() {
-        if (binding.controlCenter.root.visibility == View.VISIBLE) {
-            closeControlCenter()
-        } else {
-            openControlCenter()
-        }
+        if (binding.controlCenter.visibility == View.VISIBLE) closeControlCenter()
+        else openControlCenter()
     }
 
     private fun openControlCenter() {
         refreshCcInfo()
-        val cc = binding.controlCenter.root
+        binding.ccBackdrop.setImageBitmap(blurredWall)
+        val cc = binding.controlCenter
         binding.ccDim.alpha = 0f
         binding.ccDim.visibility = View.VISIBLE
         binding.ccDim.animate().alpha(1f).setDuration(200L).start()
@@ -264,11 +399,11 @@ class MainActivity : AppCompatActivity() {
         cc.translationY = 60f
         cc.animate().alpha(1f).translationY(0f).setDuration(240L)
             .setInterpolator(DecelerateInterpolator()).start()
-        binding.controlCenter.btnWallNext.requestFocus()
+        binding.btnWallNext.requestFocus()
     }
 
     private fun closeControlCenter() {
-        val cc = binding.controlCenter.root
+        val cc = binding.controlCenter
         cc.animate().alpha(0f).translationY(60f).setDuration(200L)
             .setInterpolator(AccelerateInterpolator())
             .withEndAction { cc.visibility = View.GONE }.start()
@@ -279,10 +414,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun refreshCcInfo() {
         val walls = WallpaperStore.list()
-        binding.controlCenter.wallName.text =
-            if (walls.isEmpty()) "No wallpapers — drop files in $WallpaperStore.DIR"
+        binding.wallName.text =
+            if (walls.isEmpty()) "No wallpapers — drop files in $DIR_WALLPAPERS"
             else "${WallpaperStore.selected(this)?.name ?: "(default gradient)"} • ${walls.size} available"
-        binding.controlCenter.macroStatus.text =
+        binding.macroStatus.text =
             if (macros.isEmpty()) "No shortcuts recorded"
             else macros.entries.joinToString("  ") { "Key ${it.key} → ${MacroStore.ACTIONS[it.value] ?: it.value}" }
     }
@@ -291,8 +426,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun startRecording() {
         recordingKey = true
-        binding.controlCenter.macroStatus.text = "● Recording — press any key now (e.g. F9)…"
-        binding.controlCenter.macroStatus.requestFocus()
+        binding.macroStatus.text = "● Recording — press any key now (e.g. F9)…"
+        binding.macroStatus.requestFocus()
     }
 
     override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
@@ -310,7 +445,7 @@ class MainActivity : AppCompatActivity() {
                 refreshCcInfo()
                 return true
             }
-            if (binding.controlCenter.root.visibility == View.VISIBLE) {
+            if (binding.controlCenter.visibility == View.VISIBLE) {
                 toggleControlCenter()
                 return true
             }
@@ -349,7 +484,7 @@ class MainActivity : AppCompatActivity() {
     private fun askMacroAction(keyCode: Int) {
         val actions = MacroStore.ACTIONS.entries.toTypedArray()
         AlertDialog.Builder(this)
-            .setTitle("Key ${keyCode} — choose action")
+            .setTitle("Key $keyCode — choose action")
             .setItems(actions.map { it.value }.toTypedArray()) { _, which ->
                 macros[keyCode] = actions[which].key
                 MacroStore.save(this, macros)
@@ -379,7 +514,9 @@ class MainActivity : AppCompatActivity() {
             window.attributes = window.attributes.apply { screenBrightness = 0.01f }
         } else {
             binding.sleepOverlay.fadeView(0f, View.GONE)
-            window.attributes = window.attributes.apply { screenBrightness = android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE }
+            window.attributes = window.attributes.apply {
+                screenBrightness = android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+            }
         }
     }
 
@@ -388,24 +525,24 @@ class MainActivity : AppCompatActivity() {
         this.visibility = visibility
     }
 
-    private val overlayHandler = Handler(Looper.getMainLooper())
-
     companion object {
         private const val TAG = "OptiOS"
         private const val ENTRANCE_PLAYED = "entrance_played"
+        private const val DIR_WALLPAPERS = "/sdcard/Pictures/OptiOS"
     }
 
     /** Entrance animation only on the very first launch of the session. */
-    private val entrancePlayed by lazy { getSharedPreferences("optios", MODE_PRIVATE).getBoolean(ENTRANCE_PLAYED, false) }
+    private val entrancePlayed by lazy {
+        getSharedPreferences("optios", MODE_PRIVATE).getBoolean(ENTRANCE_PLAYED, false)
+    }
 
-    /** Focus feedback: subtle flat 2D lift only (no 3D, no blur). */
+    /** Focus feedback: subtle flat lift (2D, cheap) + brighter accent ring. */
     private fun applyFocusAnimations() {
-        val tiles = listOf(binding.tileYouTube, binding.tileCinemana)
-        tiles.forEach { tile ->
+        listOf(binding.tileYouTube, binding.tileCinemana).forEach { tile ->
             tile.setOnFocusChangeListener { v, hasFocus ->
-                val target = if (hasFocus) 1.04f else 1.0f
+                val target = if (hasFocus) 1.06f else 1.0f
                 v.animate().scaleX(target).scaleY(target)
-                    .setDuration(160L)
+                    .setDuration(180L)
                     .setInterpolator(DecelerateInterpolator())
                     .start()
             }
@@ -413,16 +550,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun playEntranceAnimation() {
-        val overshoot = OvershootInterpolator(0.85f)
         val views = listOf<View>(binding.clockBlock, binding.tileYouTube, binding.tileCinemana, binding.dockRow)
         views.forEachIndexed { i, v ->
             v.alpha = 0f
-            v.scaleX = 0.92f
-            v.scaleY = 0.92f
-            v.animate().alpha(1f).scaleX(1f).scaleY(1f)
-                .setStartDelay(i * 80L)
-                .setDuration(300L)
-                .setInterpolator(overshoot)
+            v.translationY = 24f
+            v.animate().alpha(1f).translationY(0f)
+                .setStartDelay(i * 70L)
+                .setDuration(280L)
+                .setInterpolator(DecelerateInterpolator())
                 .start()
         }
     }
@@ -442,7 +577,19 @@ class MainActivity : AppCompatActivity() {
         binding.mediaTitle.text = snap.title
         binding.mediaArtist.text = snap.artist
         binding.mediaProgress.progressTintList =
-            android.content.res.ColorStateList.valueOf(if (snap.accentColor != 0) snap.accentColor else lastAccent)
+            android.content.res.ColorStateList.valueOf(if (snap.accentColor != 0) snap.accentColor else lastAccentColor)
+    }
+
+    /** Frosted backdrop for the popover: double downscale + filtered upscale (fast, no deps). */
+    private fun blurPanel(src: Bitmap?): Bitmap? {
+        src ?: return null
+        return try {
+            val w = 72
+            val h = (w.toFloat() * src.height / src.width).toInt().coerceAtLeast(1)
+            val small = Bitmap.createScaledBitmap(src, w, h, true)
+            val tiny = Bitmap.createScaledBitmap(small, 16, (16f * h / w).toInt().coerceAtLeast(1), true)
+            Bitmap.createScaledBitmap(tiny, 560, 380, true)
+        } catch (_: Exception) { null }
     }
 
     /** Full keyboard/D-pad: arrows between focusables, ENTER clicks, BACK exits to system. */
@@ -456,24 +603,33 @@ class MainActivity : AppCompatActivity() {
     private fun applyImmersiveMode() {
         window.decorView.systemUiVisibility =
             View.SYSTEM_UI_FLAG_FULLSCREEN or
-            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
     }
 
     private fun launchPackage(packageName: String) {
         lastLaunched = packageName
         val intent = packageManager.getLaunchIntentForPackage(packageName)
         if (intent != null) {
-            ContextCompat.startActivity(this, intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), null)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            Log.i(TAG, "launch $packageName")
+            try {
+                ContextCompat.startActivity(this, intent, null)
+            } catch (e: Exception) {
+                Log.w(TAG, "launch failed: ${e.message}")
+                Toast.makeText(this, R.string.app_not_found, Toast.LENGTH_SHORT).show()
+            }
         } else {
+            Log.w(TAG, "no launch intent for $packageName")
             Toast.makeText(this, R.string.app_not_found, Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun openSystemSettings() {
-        val intent = Intent(android.provider.Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         ContextCompat.startActivity(this, intent, null)
     }
 
