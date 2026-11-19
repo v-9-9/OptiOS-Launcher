@@ -26,6 +26,13 @@
         android:background="@drawable/bg_scrim"
         android:visibility="gone" />
 
+    <!-- Cinematic vignette: deepens edges for depth (pure gradient, no blur) -->
+    <View
+        android:id="@+id/vignetteView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_vignette" />
+
     <!-- ============ TOP CENTER: CLOCK + DATE ============ -->
     <LinearLayout
         android:id="@+id/clockBlock"
@@ -69,30 +76,48 @@
         android:layout_marginEnd="30dp"
         android:layout_marginTop="24dp"
         android:background="@drawable/bg_glass_card"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:paddingHorizontal="20dp"
-        android:paddingVertical="12dp"
+        android:elevation="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:outlineProvider="background"
+        android:paddingHorizontal="18dp"
+        android:paddingVertical="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/weatherTemp"
+            android:id="@+id/weatherGlyph"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:alpha="0.9"
             android:textColor="@color/optios_text_primary"
             android:textSize="24sp"
-            android:textStyle="bold"
-            tools:text="32°C" />
+            tools:text="☀" />
 
-        <TextView
-            android:id="@+id/weatherDesc"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:alpha="0.8"
-            android:textColor="@color/optios_text_primary"
-            android:textSize="12sp"
-            android:text="@string/weather_placeholder" />
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/weatherTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/optios_text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                tools:text="32°" />
+
+            <TextView
+                android:id="@+id/weatherDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.75"
+                android:textColor="@color/optios_text_primary"
+                android:textSize="11sp"
+                android:text="@string/weather_placeholder" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- ============ USAGE WIDGET CARD (glass, under the clock) ============ -->
@@ -101,7 +126,9 @@
         android:layout_width="236dp"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_glass_card"
+        android:elevation="8dp"
         android:orientation="vertical"
+        android:outlineProvider="background"
         android:paddingHorizontal="10dp"
         android:paddingVertical="10dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -131,6 +158,8 @@
         android:layout_height="132dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/bg_glass_card"
+        android:elevation="8dp"
+        android:outlineProvider="background"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/statusWidget">
@@ -208,11 +237,22 @@
             android:id="@+id/tileYouTube"
             style="@style/GlassTile">
 
-            <ImageView
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:contentDescription="@string/tile_youtube"
-                android:src="@drawable/ic_tile_youtube" />
+            <FrameLayout
+                android:layout_width="76dp"
+                android:layout_height="76dp">
+
+                <View
+                    android:id="@+id/iconGlowYouTube"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <ImageView
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/tile_youtube"
+                    android:src="@drawable/ic_tile_youtube" />
+            </FrameLayout>
 
             <TextView
                 style="@style/GlassTileLabel"
@@ -223,11 +263,22 @@
             android:id="@+id/tileCinemana"
             style="@style/GlassTile">
 
-            <ImageView
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:contentDescription="@string/tile_cinemana"
-                android:src="@drawable/ic_tile_cinemana" />
+            <FrameLayout
+                android:layout_width="76dp"
+                android:layout_height="76dp">
+
+                <View
+                    android:id="@+id/iconGlowCinemana"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <ImageView
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/tile_cinemana"
+                    android:src="@drawable/ic_tile_cinemana" />
+            </FrameLayout>
 
             <TextView
                 style="@style/GlassTileLabel"
@@ -244,7 +295,9 @@
         android:background="@drawable/bg_dock_pill"
         android:clipChildren="false"
         android:clipToPadding="false"
+        android:elevation="12dp"
         android:gravity="center"
+        android:outlineProvider="background"
         android:orientation="horizontal"
         android:paddingHorizontal="14dp"
         android:paddingVertical="8dp"
@@ -287,7 +340,7 @@
         android:layout_marginBottom="14dp"
         android:alpha="0"
         android:background="@drawable/bg_glass_card"
-        android:elevation="20dp"
+        android:elevation="24dp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/dockRow"
         app:layout_constraintEnd_toEndOf="@id/dockControls"
@@ -319,6 +372,15 @@
                 android:text="@string/panel_title"
                 android:textColor="@color/optios_text_primary"
                 android:textSize="20sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:alpha="0.5"
+                android:text="@string/cc_hint"
+                android:textColor="@color/optios_text_primary"
+                android:textSize="10sp" />
 
             <!-- Wallpaper picker -->
             <TextView

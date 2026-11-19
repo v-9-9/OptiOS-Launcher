@@ -292,6 +292,24 @@ class MainActivity : AppCompatActivity() {
             android.content.res.ColorStateList.valueOf(t.accent)
         binding.donutsView.setAccent(t.accent)
         lastAccentColor = t.accent
+
+        // Accent halo behind each tile icon (soft radial, themed).
+        val d = resources.displayMetrics.density
+        binding.iconGlowYouTube.background = accentHalo(this, t.accent, d)
+        binding.iconGlowCinemana.background = accentHalo(this, t.accent, d)
+    }
+
+    /** Soft radial halo: accent tint fading out (premium "lit icon" look). */
+    private fun accentHalo(ctx: android.content.Context, accent: Int, density: Float): GradientDrawable {
+        return GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            gradientType = GradientDrawable.RADIAL_GRADIENT
+            gradientRadius = 42f * density
+            colors = intArrayOf(
+                (0x38 shl 24) or (accent and 0xFFFFFF),
+                (0x00 shl 24) or (accent and 0xFFFFFF),
+            )
+        }
     }
 
     private fun panelButtons(): List<View> = listOf(
@@ -364,7 +382,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun bindWeather(temp: Int, code: Int, city: String) {
         binding.weatherTemp.text = "${temp}°"
+        binding.weatherGlyph.text = wmoGlyph(code)
         binding.weatherDesc.text = wmoLabel(code) + if (city.isNotBlank()) " · $city" else ""
+    }
+
+    private fun wmoGlyph(code: Int): String = when (code) {
+        0 -> "☀"; 1, 2 -> "⛅"; 3 -> "☁"; 45, 48 -> "🌫"
+        51, 53, 55, 56, 57 -> "🌦"; 61, 63, 65, 66, 67, 80, 81, 82 -> "🌧"
+        71, 73, 75, 77, 85, 86 -> "❄"; 95, 96, 99 -> "⛈"; else -> "•"
     }
 
     private fun wmoLabel(code: Int): String = when (code) {
@@ -536,12 +561,15 @@ class MainActivity : AppCompatActivity() {
         getSharedPreferences("optios", MODE_PRIVATE).getBoolean(ENTRANCE_PLAYED, false)
     }
 
-    /** Focus feedback: subtle flat lift (2D, cheap) + brighter accent ring. */
+    /** Focus feedback: subtle flat lift + 3D z-rise (2D scale + translationZ). */
     private fun applyFocusAnimations() {
+        val d = resources.displayMetrics.density
         listOf(binding.tileYouTube, binding.tileCinemana).forEach { tile ->
             tile.setOnFocusChangeListener { v, hasFocus ->
                 val target = if (hasFocus) 1.06f else 1.0f
-                v.animate().scaleX(target).scaleY(target)
+                v.animate()
+                    .scaleX(target).scaleY(target)
+                    .translationZ(if (hasFocus) 6f * d else 0f)
                     .setDuration(180L)
                     .setInterpolator(DecelerateInterpolator())
                     .start()

@@ -24,6 +24,7 @@
     <string name="cc_record">● Record</string>
     <string name="cc_clear">Clear all</string>
     <string name="cc_accent">ACCENT COLOR</string>
+    <string name="cc_hint">D-pad navigate · OK select · BACK close</string>
     <string name="weather_offline">Weather soon…</string>
     <string name="app_not_found">App not installed</string>
     <string name="notification_listener_label">OptiOS media + notifications</string>
