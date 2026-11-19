@@ -242,20 +242,38 @@ class MainActivity : AppCompatActivity() {
 
     // ========================= Control Center panel ========================
 
+    /** Control Center popover: rises from the dock's Controls button (flat 2D). */
     private fun toggleControlCenter() {
-        val cc = binding.controlCenter.root
-        if (cc.visibility == View.VISIBLE) {
-            cc.animate().alpha(0f).translationY(40f).setDuration(220L)
-                .setInterpolator(DecelerateInterpolator())
-                .withEndAction { cc.visibility = View.GONE }.start()
+        if (binding.controlCenter.root.visibility == View.VISIBLE) {
+            closeControlCenter()
         } else {
-            refreshCcInfo()
-            cc.visibility = View.VISIBLE
-            cc.translationY = 40f
-            cc.animate().alpha(1f).translationY(0f).setDuration(260L)
-                .setInterpolator(DecelerateInterpolator()).start()
-            binding.controlCenter.btnWallNext.requestFocus()
+            openControlCenter()
         }
+    }
+
+    private fun openControlCenter() {
+        refreshCcInfo()
+        val cc = binding.controlCenter.root
+        binding.ccDim.alpha = 0f
+        binding.ccDim.visibility = View.VISIBLE
+        binding.ccDim.animate().alpha(1f).setDuration(200L).start()
+
+        cc.visibility = View.VISIBLE
+        cc.alpha = 0f
+        cc.translationY = 60f
+        cc.animate().alpha(1f).translationY(0f).setDuration(240L)
+            .setInterpolator(DecelerateInterpolator()).start()
+        binding.controlCenter.btnWallNext.requestFocus()
+    }
+
+    private fun closeControlCenter() {
+        val cc = binding.controlCenter.root
+        cc.animate().alpha(0f).translationY(60f).setDuration(200L)
+            .setInterpolator(AccelerateInterpolator())
+            .withEndAction { cc.visibility = View.GONE }.start()
+        binding.ccDim.animate().alpha(0f).setDuration(200L)
+            .withEndAction { binding.ccDim.visibility = View.GONE }.start()
+        binding.dockControls.requestFocus()
     }
 
     private fun refreshCcInfo() {
@@ -281,6 +299,20 @@ class MainActivity : AppCompatActivity() {
         if (SleepController.isAsleep && event.action == android.view.KeyEvent.ACTION_DOWN) {
             SleepController.setSleep(false)
             return true
+        }
+        // BACK closes the popover / cancels a recording first:
+        if (event.action == android.view.KeyEvent.ACTION_DOWN &&
+            event.keyCode == android.view.KeyEvent.KEYCODE_BACK
+        ) {
+            if (recordingKey) {
+                recordingKey = false
+                refreshCcInfo()
+                return true
+            }
+            if (binding.controlCenter.root.visibility == View.VISIBLE) {
+                toggleControlCenter()
+                return true
+            }
         }
         // Capture key while recording:
         if (recordingKey && event.action == android.view.KeyEvent.ACTION_DOWN &&
@@ -365,22 +397,16 @@ class MainActivity : AppCompatActivity() {
     /** Entrance animation only on the very first launch of the session. */
     private val entrancePlayed by lazy { getSharedPreferences("optios", MODE_PRIVATE).getBoolean(ENTRANCE_PLAYED, false) }
 
-    /** Focus glow + smooth scale — 200ms, DecelerateInterpolator (cheap on GPU). */
+    /** Focus feedback: subtle flat 2D lift only (no 3D, no blur). */
     private fun applyFocusAnimations() {
         val tiles = listOf(binding.tileYouTube, binding.tileCinemana)
         tiles.forEach { tile ->
             tile.setOnFocusChangeListener { v, hasFocus ->
-                val target = if (hasFocus) 1.10f else 1.0f
+                val target = if (hasFocus) 1.04f else 1.0f
                 v.animate().scaleX(target).scaleY(target)
-                    .setDuration(200L)
+                    .setDuration(160L)
                     .setInterpolator(DecelerateInterpolator())
                     .start()
-            }
-        }
-        listOf(binding.dockApps, binding.dockControls, binding.dockSettings).forEach { dock ->
-            dock.setOnFocusChangeListener { v, hasFocus ->
-                v.animate().scaleY(if (hasFocus) 1.10f else 1.0f)
-                    .setDuration(170L).start()
             }
         }
     }

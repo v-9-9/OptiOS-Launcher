@@ -272,7 +272,14 @@
             android:text="@string/dock_settings" />
     </LinearLayout>
 
-    <!-- ============ CONTROL CENTER (slide-up, full featured) ============ -->
+    <!-- ============ CONTROL CENTER (slide-up glass popover over the Controls button) ============ -->
+    <View
+        android:id="@+id/ccDim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#A6120D0A"
+        android:visibility="gone" />
+
     <include
         android:id="@+id/controlCenter"
         layout="@layout/control_center" />
